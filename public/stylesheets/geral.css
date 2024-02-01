@@ -1,0 +1,19 @@
+body, html {
+    display: flex;
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    font-family: latoregular,sans-serif;
+    background-image: url("../images/fundo.jpg");
+    background-size: cover;
+    overflow-x: hidden;
+}
+
+#content{
+    position:fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: aliceblue;
+}
