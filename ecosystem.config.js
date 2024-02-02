@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'backend',
-      script: '/var/www/servidor/app.js',
+      script: '/var/www/backEnd/app.js',
       cwd: '/var/www/servidor',
       // ... outras configurações ...
     },
@@ -11,7 +11,7 @@ module.exports = {
       script: 'npm',
       args: 'start',
       interpreter: 'none',
-      cwd: '/var/www/react-project',
+      cwd: '/var/www/frontEnd',
       // ... outras configurações ...
     },
   ],
