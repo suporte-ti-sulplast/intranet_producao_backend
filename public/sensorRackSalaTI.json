@@ -40622,5 +40622,45 @@
       "sensorDS18B20": 18.625,
       "umidade": 38
     }
+  },
+  {
+    "timestamp": "2024-02-06T07:48:37.246-03:00",
+    "sensorData": {
+      "sensorDHT11": 19.1,
+      "sensorDS18B20": 18.5625,
+      "umidade": 38
+    }
+  },
+  {
+    "timestamp": "2024-02-06T07:49:37.247-03:00",
+    "sensorData": {
+      "sensorDHT11": 19,
+      "sensorDS18B20": 18.5625,
+      "umidade": 38
+    }
+  },
+  {
+    "timestamp": "2024-02-06T07:50:37.249-03:00",
+    "sensorData": {
+      "sensorDHT11": 19.1,
+      "sensorDS18B20": 18.5,
+      "umidade": 38
+    }
+  },
+  {
+    "timestamp": "2024-02-06T07:51:37.249-03:00",
+    "sensorData": {
+      "sensorDHT11": 19,
+      "sensorDS18B20": 18.5625,
+      "umidade": 38
+    }
+  },
+  {
+    "timestamp": "2024-02-06T07:52:37.251-03:00",
+    "sensorData": {
+      "sensorDHT11": 19,
+      "sensorDS18B20": 18.5,
+      "umidade": 38
+    }
   }
 ]
