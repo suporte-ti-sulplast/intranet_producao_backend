@@ -5,6 +5,8 @@ const path = require('path');
 const router = require("./src/routes"); 
 const multer = require('multer');
 require('dotenv').config();
+const { getSensorDataRackSalaTI } = require('./src/conections/arduino');
+const { monitorSensorDataRackSalaTI } = require('./src/functions/getDataArduinos');
 
 //configura o CORs
 app.use((req, res, next) => {
@@ -20,6 +22,8 @@ app.use((req, res, next) => {
   next();
 });
 
+
+
 const upload = require('./src/routes/upload');
 const authRouter =  require('./src/routes/auth');
 const indexRouter =  require('./src/routes/index');
@@ -33,6 +37,9 @@ const filesRouter = require('./src/routes/filesRouter');
 const sgiRouter = require('./src/routes/sgiRoutes'); 
 const panelRouter = require('./src/routes/panelRoutes'); 
 const voucherWifi = require('./src/routes/voucherWifiRouters'); 
+const monitorRouter = require('./src/routes/monitorRouter'); 
+
+const { rackSalaTI } = require('./src/services//sendEmailSensors');
 
 const { render } = require('ejs');
 
@@ -57,6 +64,7 @@ app.use("/", filesRouter);
 app.use("/", sgiRouter);
 app.use("/", panelRouter);
 app.use("/", voucherWifi);
+app.use("/", monitorRouter);
 
 // Configurar uma rota para servir imagens
 app.use('/images-news', express.static(path.join(__dirname, 'public/upload/news')));
@@ -71,7 +79,12 @@ app.use('/files-its', express.static(path.join(__dirname, 'public/file/sgi/its')
 app.use('/files-comunicacoes', express.static(path.join(__dirname, 'public/file/comunicacoes')));
 
 
+getSensorDataRackSalaTI();
+monitorSensorDataRackSalaTI(60);
+// Inicia serviços a cada 20 segundos
+rackSalaTI(20);
+
 //inicializa o servidor
-app.listen(3000, () => {
-  console.log('Servidor rodando na porta 3000');
+app.listen(process.env.PORT, () => {
+  console.log('Servidor rodando na porta:', process.env.PORT);
 });

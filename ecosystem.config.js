@@ -7,7 +7,7 @@ module.exports = {
       // ... outras configurações ...
     },
     {
-      name: 'frontend',
+      name: 'react-project',
       script: 'npm',
       args: 'start',
       interpreter: 'none',
