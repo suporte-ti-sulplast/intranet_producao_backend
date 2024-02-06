@@ -40662,5 +40662,13 @@
       "sensorDS18B20": 18.5,
       "umidade": 38
     }
+  },
+  {
+    "timestamp": "2024-02-06T07:53:37.249-03:00",
+    "sensorData": {
+      "sensorDHT11": 19,
+      "sensorDS18B20": 18.5,
+      "umidade": 38
+    }
   }
 ]
