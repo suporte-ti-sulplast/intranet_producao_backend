@@ -1,0 +1,17 @@
+[
+  {
+    "idMonitor": 1,
+    "emailReceive": "suporte.ti@sulplast.com.br",
+    "equipament": "Rack Servidor",
+    "category": "Temperatura",
+    "location": "Sala TI",
+    "tempAttention": 20,
+    "tempModerate": 22,
+    "tempHigh": 24,
+    "tempDisaster": 26,
+    "emailTempAttention": "S",
+    "emailTempModerate": "S",
+    "emailTempHigh": "S",
+    "emailTempDisaster": "S"
+  }
+]

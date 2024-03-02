@@ -24,3 +24,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+/public/file/comunicacoes
+/public/file/lgpd
+/public/file/manuaisinformatica
+/public/file/sgi/its
+/public/file/vouchers
+/public/file/noticias
+/public/file/*
+public/file/*
+ecosystem.config.js

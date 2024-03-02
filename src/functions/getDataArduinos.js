@@ -12,7 +12,7 @@ async function monitorSensorDataRackSalaTI(seg) {
 
         // Lê o conteúdo atual do arquivo, se existir
         let existingData = [];
-        const filePath = 'public/sensorRackSalaTI.json';
+        const filePath = 'public/files/sensorRackSalaTI.json';
 
         if (fs.existsSync(filePath)) {
           try {

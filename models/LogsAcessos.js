@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('./db');
+const db = require('../src/conections/db');
 
 const LogsAcessos = db.define('LogsAcessos',{
   idLog: {
