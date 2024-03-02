@@ -15,7 +15,7 @@ exports.listaVeiculos = async (req, res) => {
       attributes: ['vehicle_id', 'vehicle_name', 'image', 
         [Sequelize.literal('(SELECT status FROM VehiclesMoviments WHERE VehiclesMoviments.vehicle_id = Vehicles.vehicle_id ORDER BY id DESC LIMIT 1)'), 'inOut']
       ],
-      where: { status: 1 },
+      where: { idStatus: 1 },
       raw: true,
       nest: true,
     });

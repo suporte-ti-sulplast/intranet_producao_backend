@@ -82,7 +82,7 @@ app.use('/files-comunicacoes', express.static(path.join(__dirname, 'public/file/
 getSensorDataRackSalaTI();
 monitorSensorDataRackSalaTI(60);
 // Inicia serviços a cada 20 segundos
-rackSalaTI(20);
+rackSalaTI(60 * 5);
 
 //inicializa o servidor
 app.listen(process.env.PORT, () => {

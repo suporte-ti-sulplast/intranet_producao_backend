@@ -17,7 +17,7 @@ exports.createNews = async (req, res) => {
             text: textTexto,
             image: newFileName,
             imageName: fileName,
-            status: status,
+            idStatus: status,
             dateInit: dataInit,
             dateEnd: dataEnd,
             link: link,
@@ -63,7 +63,7 @@ exports.listNews = async (req, res) => {
             raw: true,
             nest: true,
             attributes: [
-                'idNews', 'title', 'text', 'date', 'status', 'link', 'dateInit',  'dateEnd', 'image',  'imageName'],
+                'idNews', 'title', 'text', 'date', 'idStatus', 'link', 'dateInit',  'dateEnd', 'image',  'imageName'],
             where: {
                 dateInit: {
                     [Op.lte]: dataRequisicao, // Menor ou igual a data da requisição
@@ -71,7 +71,7 @@ exports.listNews = async (req, res) => {
                 dateEnd: {
                     [Op.gte]: dataRequisicao, // Maior ou igual a data da requisição
                 },
-                status: 1, // Verificar se o status é igual a 1 (ativo)
+                idStatus: 1, // Verificar se o status é igual a 1 (ativo)
             },
         });
   
@@ -114,7 +114,7 @@ exports.newsAlterStatus = async (req, res) => {
 
     //COLOCA O NOVO VALOR NUMA VARIAVEL
     const updateStatus  = {
-        status: newStatus
+        idStatus: newStatus
     };
 
     // ATUALIZA A TABELA COM O NOVO VALOR
@@ -149,7 +149,7 @@ exports.newsUpdateBD = async (req, res) => {
                 title: textTiulo.toUpperCase(),
                 date: data.toUpperCase(),
                 text: textTexto,
-                status: status,
+                idStatus: status,
                 dateInit: dataInit,
                 dateEnd: dataEnd,
                 link: link
@@ -162,7 +162,7 @@ exports.newsUpdateBD = async (req, res) => {
                 title: textTiulo.toUpperCase(),
                 date: data.toUpperCase(),
                 text: textTexto,
-                status: status,
+                idStatus: status,
                 imageName: imageName,
                 image: image,
                 dateInit: dataInit,

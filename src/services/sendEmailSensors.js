@@ -89,8 +89,6 @@ async function rackSalaTI(intervaloMinutos) {
 
           //COMPARA SE HOUVE ALTERAÇÃO DO ESTADO
           if(retorno.novoEstado !== retorno.antigoEstado) {
-            console.log(retorno.antigoEstado, retorno.novoEstado, retorno.temperatura);
-            console.log('HOUVE ALTERAÇÃO DO ESTADO');
             count += 1; //incia um contador de ciclos
             //VERIFICA SE O ESTADO PERMANECEU ALTERADO POR 3 CICLOS - SE PERMANECEU ATUALIZA O ESTADO ATUAL
             if(count === 3){
@@ -103,17 +101,10 @@ async function rackSalaTI(intervaloMinutos) {
               }
               estadoAtual = retorno.novoEstado //atualizado o estado
               count = 0; //zera o contador
-              
-              console.log(`ATUALIZADO O ESTADO ATUAL PARA ${retorno.novoEstado}, ${direcaoMovimento}, ZERADO O CONTADOR`);
-              console.log('AQUI ENVIA O EMIAL');
-
             };
-            console.log(count);
+
           } else {
-            console.log(retorno.antigoEstado, retorno.novoEstado, retorno.temperatura);
-            console.log('ESTADO PERMANECEU O MESMO');
             count = 0;
-            console.log(count);
           }
 
         } catch (error) {

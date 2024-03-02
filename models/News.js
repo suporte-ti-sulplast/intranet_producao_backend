@@ -26,8 +26,8 @@ const News = db.define('News',{
     image: {
         type: Sequelize.STRING(255),
     },
-    status: {
-      type: Sequelize.BOOLEAN,
+    idStatus: {
+      type: Sequelize.INTEGER,
     },
     dateInit: {
       type: Sequelize.DATEONLY,

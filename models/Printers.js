@@ -13,8 +13,8 @@ const Printers = db.define('Printers', {
       type: Sequelize.STRING(40),
       allowNull: false
     },
-    status: {
-        type: Sequelize.BOOLEAN,
+    idStatus: {
+        type: Sequelize.INTEGER,
         allowNull: false
     },
     createdBy: {

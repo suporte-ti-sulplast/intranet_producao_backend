@@ -12,8 +12,8 @@ const Monitors = db.define('Monitors', {
         type: Sequelize.STRING(50),
         allowNull: false,
       },
-      status: {
-        type: Sequelize.BOOLEAN,
+      idStatus: {
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       createdBy: {

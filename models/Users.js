@@ -65,6 +65,12 @@ const Users = db.define('Users',{
     birthdate: {
       type: Sequelize.STRING(5),
     },
+    idPanel:  {
+      type: Sequelize.INTEGER,
+    },
+    badge:  {
+      type: Sequelize.STRING(100),
+    },
 });
 
     Users.belongsTo(Departments, {

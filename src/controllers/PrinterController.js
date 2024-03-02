@@ -11,7 +11,7 @@ exports.printerList = async (req, res) => {
 
     try {
         const resultado = await PrintersModel.findAll({
-            attributes: ['idPrinter', 'printerName', 'manufacturer', 'model','ip','status','netUsb', 'location'],
+            attributes: ['idPrinter', 'printerName', 'manufacturer', 'model','ip','idStatus','netUsb', 'location'],
             include: [{
                 model: UserModel,
                 attributes: ['idUser', 'login'],
@@ -46,7 +46,7 @@ exports.printerCreate = async (req, res) => {
             model: req.body.data.modelo.toUpperCase(),
             ip: req.body.data.ip,
             netUsb: req.body.data.netUsb,
-            status: req.body.data.status,
+            idStatus: req.body.data.status,
             location: req.body.data.localizacao,
             createdBy: req.body.data.setUser,
             updatedBy: req.body.data.setUser,
@@ -116,7 +116,7 @@ exports.printerSearch = async (req, res) => {
                     model: PrintersModel, // Correção aqui
                     where: {
                         idPrinter: Sequelize.col('PrintersDepartments.idPrinter'),
-                        status: 1
+                        idStatus: 1
                     },
                     attributes: ['idPrinter','printerName', 'netUsb', 'ip','model', 'location'], // Especifique as colunas que você deseja recuperar do modelo Printers
                 }
@@ -139,7 +139,7 @@ exports.printerEdit = async (req, res) => {
     
     try {
         const printer = await PrintersModel.findOne({
-            attributes: ['idPrinter', 'printerName', 'manufacturer', 'model','ip','status','netUsb', 'location'],
+            attributes: ['idPrinter', 'printerName', 'manufacturer', 'model','ip','idStatus','netUsb', 'location'],
             where: {
                 idPrinter: idPrinter
             },
@@ -183,7 +183,7 @@ exports.printerAlterStatus = async (req, res) => {
 
     //COLOCA O NOVO VALOR NUMA VARIAVEL
     const updateStatus  = {
-        status: printerStatus
+        idStatus: printerStatus
     };
 
     // ATUALIZA A TABELA COM O NOVO VALOR
@@ -322,7 +322,7 @@ exports.printerEditSave = async (req, res) => {
             manufacturer: req.body.data.fabricante.toUpperCase(),
             model: req.body.data.modelo.toUpperCase(),
             ip: req.body.data.ip,
-            netUsb: req.body.data.netUsb,
+            idStatus: req.body.data.netUsb,
             status: req.body.data.status,
             updatedBy: req.body.data.setUser,
         };

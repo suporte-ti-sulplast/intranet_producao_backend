@@ -33,8 +33,8 @@ const Vehicles = db.define('Vehicles',{
         type: Sequelize.STRING(10),
         allowNull: false,
     },
-    status: {
-        type: Sequelize.BOOLEAN,
+    idStatus: {
+        type: Sequelize.INTEGER,
         allowNull: false,
     },
     image: {

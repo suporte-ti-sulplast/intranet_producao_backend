@@ -25,5 +25,5 @@ dist-ssr
 *.sln
 *.sw?
 
-/public/file
+/public/sharedFiles
 ecosystem.config.js
