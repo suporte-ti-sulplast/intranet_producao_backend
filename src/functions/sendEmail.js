@@ -1,5 +1,7 @@
+const e = require('cors');
 const nodemailer = require('nodemailer');
 
+//ENVIO DE EMAIL PARA SLTERAÇÃO DE SENHA
 function sendEmailPassword(nameComplete, e_mail, password) {
 
     const nome = nameComplete.split(' '); 
@@ -24,11 +26,15 @@ function sendEmailPassword(nameComplete, e_mail, password) {
         subject: "Alteração de senha da INTRANET",
         html: `
           <br>
+          <h1 style="background-color: green; color: white;"><strong>SENHA ALTERADA!</strong>
+          </h1>
           <p>Olá, <strong>${nome[0].toUpperCase()}</strong>.</p>
           <p>Sua senha foi alterada com sucesso!</p>
           <p>Sua nova senha é:</p>
           <p><strong>${senha}</strong></p>
-          <p>Caso você não tenha feito essa alteração, entre em contato com o TI.</p>
+          <p>Caso você não tenha feito essa alteração, entre em contato com o TI pelo ramal 114.</p>
+          <p><strong>Este é um e-mail gerado automaticamente pelo sistema INTRANET SULPLAST, favor não responder.</strong></p>
+          <p  style="background-color: black; color: white;" >Att, TECNOLOGIA DA INFORMAÇÃO</strong></p>
         `,
       });
     } catch (error) {
@@ -96,11 +102,14 @@ function sendEmailIT(users, it, tipo){
         subject: tipo === 'novaIT' ? 'Nova IT' : 'Alteração IT',
         html: `
           <br>
+          <h1 style="background-color: green; color: white;"><strong>${tipo === 'novaIT' ? 'Nova IT' : 'Alteração IT'}</strong>
+          </h1>
           <p>Olá, <strong>${nameComplete.split(' ')[0].toUpperCase()}</strong>.</p>
           <p>${texto}</p>
-          <p><strong>${it}</strong></p>
+          <p  style="color: red"><strong>${it}</strong></p>
           <p>Você pode acessar através da INTRANET -> SGIs -> ITs.</p>
-          <p>At.te, Tecnologia da Informação</p>
+          <p><strong>Este é um e-mail gerado automaticamente pelo sistema INTRANET SULPLAST, favor não responder.</strong></p>
+          <p  style="background-color: black; color: white;" >Att, TECNOLOGIA DA INFORMAÇÃO</strong></p>
         `,
       });
       console.log('Email enviado com sucesso para: ', email);
@@ -114,6 +123,7 @@ function sendEmailIT(users, it, tipo){
   return 'Email enviados com sucesso!';
 } 
 
+//ENVIO DE EMAIL PARA SOLICITAÇÃO DE VOUCHER
 function sendEmailVoucher(horas, email) {
 
   const transporter = nodemailer.createTransport({
@@ -134,9 +144,67 @@ function sendEmailVoucher(horas, email) {
         subject: "Gerar Voucher de Wifi",
         html: `
           <br>
+          <h1 style="background-color: green; color: white;"><strong>GERAR VOUCHER!</strong>
+          </h1>
           <p>Olá, <strong>Sr. Leandro</strong>.</p>
           <p>Favor gerar novos vouchers de wifi para ${horas} horas.</p>
-          <p>Obrigado.</p>
+          <p><strong>Este é um e-mail gerado automaticamente pelo sistema INTRANET SULPLAST, favor não responder.</strong></p>
+          <p  style="background-color: black; color: white;" >Att, TECNOLOGIA DA INFORMAÇÃO</strong></p>
+        `,
+      });
+    } catch (error) {
+      console.error('Erro ao enviar e-mail:', error);
+      return ('Erro ao enviar e-mail!');
+    }
+  }
+
+  sendEmail();
+
+  return ('Email enviado com sucesso!');
+
+};
+
+
+//ENVIO DE EMAIL PARA SOLICITAÇÃO ALERTA DE TEMPERATURA
+function sendEmailTempRackSalaTI(equipamento, local, category, direcaoMovimento, estado, temperatura, destinatario) {
+
+  const transporter = nodemailer.createTransport({
+  host: process.env.MAIL_HOST || 'smtp.mailgun.org',
+  port: process.env.MAIL_PORT || 587,
+  secure: false, // Para TLS
+  auth: {
+      user: process.env.MAIL_USERNAME,
+      pass: process.env.MAIL_PASSWORD,
+    },
+  });
+
+  async function sendEmail() {
+    try {
+      const mailSent = await transporter.sendMail({
+        from: process.env.MAIL_FROM_ADDRESS,
+        to: destinatario,
+        subject: `Alteração de ${category}`,
+        html: `
+          <br>
+          <h1 style="background-color: ${estado === 'DESASTRE' ? '#e45959' : 
+            estado === 'ALTO' ? '#e97659' : 
+            estado === 'MODERADO' ? '#ffa059' : 
+            estado === 'ATENÇÃO' ? '#ffc859' : 
+            'green'}; color: white;"><strong>ALERTA!</strong>
+          </h1>
+          <p>Temperatura do equipamento: <strong>${equipamento}</strong>, localizado em:  <strong>${local}</strong>.</p>
+          <p>Está em: <strong>${temperatura}°C</strong></p>
+          <p>${direcaoMovimento}
+            <span
+              style="color: ${estado === 'DESASTRE' ? '#e45959' : 
+                  estado === 'ALTO' ? '#e97659' : 
+                  estado === 'MODERADO' ? '#ffa059' : 
+                  estado === 'ATENÇÃO' ? '#ffc859' : 
+                  'green'};"
+            ><strong>${estado}</strong></span>
+         </p>
+          <p><strong>Este é um e-mail gerado automaticamente pelo sistema INTRANET SULPLAST, favor não responder.</strong></p>
+        <p  style="background-color: black; color: white;" >Att, TECNOLOGIA DA INFORMAÇÃO</strong></p>
         `,
       });
     } catch (error) {
@@ -153,4 +221,4 @@ function sendEmailVoucher(horas, email) {
   
 
 
-module.exports = {sendEmailPassword, sendEmailIT, sendEmailVoucher};
+module.exports = {sendEmailPassword, sendEmailIT, sendEmailVoucher, sendEmailTempRackSalaTI};

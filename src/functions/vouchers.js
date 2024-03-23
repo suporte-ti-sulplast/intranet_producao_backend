@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 function vouchers(numero) {
-  const pasta = './public/file/vouchers';
+
+  const pasta = './public/sharedFiles/vouchers';
 
   return new Promise((resolve, reject) => {
     // Listar os arquivos no diretório
@@ -22,7 +23,7 @@ function vouchers(numero) {
       }
 
       // Caminho completo para o arquivo
-      const caminhoArquivo = path.join(pasta, arquivoFiltrado);
+      const caminhoArquivo = '/var/www/servidor/public/sharedFiles/vouchers/' + arquivoFiltrado;
 
       // Ler o conteúdo do arquivo
       fs.readFile(caminhoArquivo, 'utf8', (err, data) => {

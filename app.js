@@ -2,11 +2,14 @@ const express = require('express');
 const cors = require("cors");
 const app = express();
 const path = require('path');
-const router = require("./src/routes"); 
+const router = require("./src/routes/_index"); 
 const multer = require('multer');
+const ldapFunctions = require('./src/conections/ldap');
 require('dotenv').config();
 const { getSensorDataRackSalaTI } = require('./src/conections/arduino');
 const { monitorSensorDataRackSalaTI } = require('./src/functions/getDataArduinos');
+
+const { binpack } = require('./src/functions/binpack')
 
 //configura o CORs
 app.use((req, res, next) => {
@@ -22,26 +25,24 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
-const upload = require('./src/routes/upload');
-const authRouter =  require('./src/routes/auth');
-const indexRouter =  require('./src/routes/index');
-const userRoutes = require('./src/routes/userRoutes');
-const newsRoutes = require('./src/routes/newsRoutes');
-const labelsRoutes = require('./src/routes/labelsRoutes');
-const printerRoutes = require('./src/routes/printerRoutes');
-const reportsRoutes = require('./src/routes/reportsRoutes');
-const conciergeRoutes = require('./src/routes/conciergeRoutes');
-const filesRouter = require('./src/routes/filesRouter'); 
-const sgiRouter = require('./src/routes/sgiRoutes'); 
-const panelRouter = require('./src/routes/panelRoutes'); 
-const voucherWifi = require('./src/routes/voucherWifiRouters'); 
-const monitorRouter = require('./src/routes/monitorRouter'); 
+const upload = require('./src/routes/_upload');
+const authRouter =  require('./src/routes/_auth');
+const indexRouter =  require('./src/routes/_index');
+const UsuariosRoutes = require('./src/routes/UsuariosRoutes');
+const NoticiasRoutes = require('./src/routes/NoticiasRoutes');
+const EtiquetasRoutes = require('./src/routes/EtiquetasRoutes');
+const ImpressorasRoutes = require('./src/routes/ImpressorasRoutes');
+const RelatoriosRoutes = require('./src/routes/RelatoriosRoutes');
+const PortariaRoutes = require('./src/routes/PortariaRoutes');
+const ArquivosRouter = require('./src/routes/ArquivosRouter'); 
+const CoqRoutes = require('./src/routes/CoqRoutes'); 
+const PaineisRoutes = require('./src/routes/PaineisRoutes'); 
+const RecepcaoRouters = require('./src/routes/RecepcaoRouters'); 
+const MonitoresRouter = require('./src/routes/MonitoresRouter'); 
+const DelsoftRouter = require('./src/routes/DelsoftRoutes'); 
+const LogsRouter = require('./src/routes/_Logs'); 
 
 const { rackSalaTI } = require('./src/services//sendEmailSensors');
-
-const { render } = require('ejs');
 
 app.use(router);
 
@@ -53,36 +54,49 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //ROTAS
 app.use("/auth", authRouter);
-app.use("/", newsRoutes);
-app.use("/", userRoutes);
+app.use("/auth/cracha", authRouter);
+app.use("/", NoticiasRoutes);
+app.use("/", UsuariosRoutes);
 app.use("/", indexRouter);
-app.use("/", labelsRoutes);
-app.use("/", printerRoutes);
-app.use("/", reportsRoutes);
-app.use("/", conciergeRoutes);
-app.use("/", filesRouter);
-app.use("/", sgiRouter);
-app.use("/", panelRouter);
-app.use("/", voucherWifi);
-app.use("/", monitorRouter);
+app.use("/", EtiquetasRoutes);
+app.use("/", ImpressorasRoutes);
+app.use("/", RelatoriosRoutes);
+app.use("/", PortariaRoutes);
+app.use("/", ArquivosRouter);
+app.use("/", CoqRoutes);
+app.use("/", PaineisRoutes);
+app.use("/", RecepcaoRouters);
+app.use("/", MonitoresRouter);
+app.use("/", DelsoftRouter);
+app.use("/", LogsRouter);
 
 // Configurar uma rota para servir imagens
-app.use('/images-news', express.static(path.join(__dirname, 'public/upload/news')));
 app.use('/images-vehicles', express.static(path.join(__dirname, 'public/upload/vehicles')));
 //rota para fazer upload de imagem
 app.use('/upload', upload);
 
 // Endpoint para servir arquivos
-app.use('/files-lgpd', express.static(path.join(__dirname, 'public/file/lgpd')));
-app.use('/files-manuais-informatica', express.static(path.join(__dirname, 'public/file/manuaisinformatica')));
-app.use('/files-its', express.static(path.join(__dirname, 'public/file/sgi/its')));
-app.use('/files-comunicacoes', express.static(path.join(__dirname, 'public/file/comunicacoes')));
+app.use('/files-lgpd', express.static(path.join(__dirname, 'public/sharedFiles/lgpd')));
+app.use('/files-manuais-informatica', express.static(path.join(__dirname, 'public/sharedFiles/manuaisinformatica')));
+app.use('/files-its', express.static(path.join(__dirname, 'public/sharedFiles/sgi/its')));
+app.use('/files-comunicacoes', express.static(path.join(__dirname, 'public/sharedFiles/comunicacoes')));
+app.use('/files-noticias', express.static(path.join(__dirname, 'public/sharedFiles/comunicacoes/noticias')));
 
+
+/* ldapFunctions.buscarUsuarios((err, usuarios) => {
+  if (err) {
+    console.error('Erro na busca de usuários:', err);
+  } else {
+    console.log('Usuários encontrados:', usuarios);
+  }
+}) */
+
+/* binpack(); */
 
 getSensorDataRackSalaTI();
 monitorSensorDataRackSalaTI(60);
 // Inicia serviços a cada 20 segundos
-rackSalaTI(60 * 5);
+rackSalaTI(60*10);
 
 //inicializa o servidor
 app.listen(process.env.PORT, () => {
