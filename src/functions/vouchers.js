@@ -23,7 +23,7 @@ function vouchers(numero) {
       }
 
       // Caminho completo para o arquivo
-      const caminhoArquivo = '/var/www/servidor/public/sharedFiles/vouchers/' + arquivoFiltrado;
+      const caminhoArquivo = '/var/www/backend/public/sharedFiles/vouchers/' + arquivoFiltrado;
 
       // Ler o conteúdo do arquivo
       fs.readFile(caminhoArquivo, 'utf8', (err, data) => {

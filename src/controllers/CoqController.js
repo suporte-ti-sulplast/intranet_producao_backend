@@ -250,7 +250,7 @@ exports.sgiItsDelete = async (req, res) => {
 
   const now = new Date();
 
-  const pastaOrigem = '/var/www/servidor/public/sharedFiles/sgi/its';
+  const pastaOrigem = '/var/www/backend/public/sharedFiles/sgi/its';
   const subpastaDesativados = 'Desativados';
   const nomeArquivo = itName; // Substitua pelo nome real do arquivo
   const sufixo = `_DEL_${now.toISOString()}_${user}`;

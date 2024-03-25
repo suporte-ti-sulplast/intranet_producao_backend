@@ -86,7 +86,7 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
     console.log('Temperatura:', temperatura);
   }
 
-  const filePath = '/var/www/servidor/public/files/monitorsData.json'; // Caminho absoluto
+  const filePath = '/var/www/backend/public/files/monitorsData.json'; // Caminho absoluto
 
   try {
       // Lê o conteúdo do arquivo

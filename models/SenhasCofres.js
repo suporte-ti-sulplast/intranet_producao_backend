@@ -20,7 +20,7 @@ const SenhasCofres = db.define('SenhasCofres', {
     allowNull: true,
   },
   password: {
-    type: Sequelize.STRING(40),
+    type: Sequelize.STRING(100),
     allowNull: true,
   },
   descriptionPass: {

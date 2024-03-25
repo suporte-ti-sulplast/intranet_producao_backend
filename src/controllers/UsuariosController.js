@@ -1,12 +1,15 @@
 const { Op, literal } = require('sequelize');
 const moment = require('moment');
 const AccessLevelModel = require('../../models/NiveisAcessos');
+const LogsTrocaSenhasModel = require('../../models/LogsTrocaSenhas');
 const DepartmentsModel = require('../../models/Departamentos');
 const StatusesModel = require('../../models/Status');
 const UsersModel = require('../../models/Usuarios');
 const AccessAplicationsModel = require('../../models/AplicacoesDepartamentos');
 const AplicationsModel = require('../../models/Aplicacoes');
 const SettingsModel = require('../../models/Configuracoes');
+const EmailsGruposModel = require('../../models/EmailsGrupos');
+const EmailsGruposUsuariosModel = require('../../models/EmailsGruposUsuarios');
 const calcularDiferencaEmDias = require('../functions/paswordAge');
 const { sendEmailPassword } = require('../functions/sendEmail');
 const Sequelize = require('sequelize');
@@ -14,7 +17,6 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const fs = require('fs');
 require('dotenv').config()
-
 
 // Chave secreta para criptografia (mantenha isso seguro)
 const secretKey = process.env.SECRET_KEY;
@@ -496,6 +498,35 @@ exports.userAddBD = async (req, res) => {
       msg_type = "error"
   }) ;
 
+    //SALVA A CRIAÇÃO DE SENHA NO LOG DE SENHAS
+  //busca quem usuário fez a alteração/criação
+  const logged = await UsersModel.findOne({
+    where: { idUser: req.body.idUser },
+      attributes: ['login'],
+    raw : true,
+    nest : true
+  });
+
+  //busca os dados do ip e navegador
+  const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    // Remove o prefixo ::ffff: se estiver presente
+    const ipv4Address = ipAddress.replace(/^::ffff:/, '');
+
+  //coloca os dados numa variavel
+  const logSenhas = {
+    userLogin: req.body.login,
+    createdAlterated: 'C',
+    ipAddress: ipv4Address ,
+    createdAlteratedBy: logged.login
+  };
+
+  //ATUALIZA A TABELA COM O NOVO VALOR
+  await LogsTrocaSenhasModel.create(logSenhas).then(() => {
+    console.log("Log criado com sucesso");
+  }).catch((err) => {
+      console.log("erro", err);
+  }) ;
+
   return res.json({ msg, msg_type });
 };
 
@@ -553,6 +584,7 @@ exports.userAlterPassword = async (req, res) => {
 
   console.log(trocaSenha);
   console.log(req.body.newPasword);
+  console.log(req.body.idLoggeg);
 
   //CRIPTOGRAFA A SENHA PARA GUARDAR NO BANCO
   var password = await bcrypt.hash(req.body.newPasword, 10);
@@ -561,7 +593,7 @@ exports.userAlterPassword = async (req, res) => {
   //buscas as ultimas senhas
   const senhas = await UsersModel.findOne({
     where: { idUser: id },
-      attributes: ['idUser','nameComplete', 'email', 'sendEmail', 'password', 'passwordOld1', 'passwordOld2', 'agePassword', 'forcedChangePassword' ],
+      attributes: ['idUser','login','nameComplete', 'email', 'sendEmail', 'password', 'passwordOld1', 'passwordOld2', 'agePassword', 'forcedChangePassword' ],
         raw : true,
         nest : true
       });
@@ -588,6 +620,34 @@ exports.userAlterPassword = async (req, res) => {
     msg = "Houve um erro interno.";
     msg_type = "error";
   });
+
+  //SALVA A CRIAÇÃO DE SENHA NO LOG DE SENHAS
+  //busca quem usuário fez a alteração/criação
+  const logged = await UsersModel.findOne({
+    where: { idUser: idLoggeg },
+      attributes: ['login'],
+    raw : true,
+    nest : true
+  });
+
+  //busca os dados do ip e navegador
+  const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  // Remove o prefixo ::ffff: se estiver presente
+  const ipv4Address = ipAddress.replace(/^::ffff:/, '');
+  
+  const logSenhas = {
+    userLogin: senhas.login,
+    createdAlterated: 'A',
+    ipAddress: ipv4Address ,
+    createdAlteratedBy: logged.login
+  };
+
+  //ATUALIZA A TABELA COM O NOVO VALOR
+  await LogsTrocaSenhasModel.create(logSenhas).then(() => {
+      console.log("Log criado com sucesso");
+  }).catch((err) => {
+      console.log("erro", err);
+  }) ;
 
   if(senhas.sendEmail === 'S' && id !== idLoggeg) {
     const envioEmail = sendEmailPassword(senhas.nameComplete, senhas.email, req.body.newPasword);

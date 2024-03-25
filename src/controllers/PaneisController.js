@@ -107,7 +107,7 @@ exports.panelData = async (req, res) => {
 
   try {
     // Caminho do arquivo
-    const filePath = '/var/www/servidor/public/files/painel.js';
+    const filePath = '/var/www/backend/public/files/painel.js';
 
     // Lê o conteúdo do arquivo
     const fileContent = fs.readFileSync(filePath, 'utf-8');
