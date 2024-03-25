@@ -36,3 +36,7 @@ ecosystem.config.js
 /public/file/*
 public/file/*
 ecosystem.config.js
+public/files/monitorsData.json
+public/files/painel.js
+public/files/sensorRackSalaTI.json
+public/files/usersAd.json
