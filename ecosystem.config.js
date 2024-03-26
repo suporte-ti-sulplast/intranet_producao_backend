@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'intranet-backend',
+      name: 'backend-DEV',
       script: '/var/www/backend/app.js',
       cwd: '/var/www/backend',
       instances: 2,
@@ -11,25 +11,16 @@ module.exports = {
       // ... outras configurações ...
     },
     {
-      name: 'intranet-frontend',
+      name: 'frontend-DEV',
       script: 'npm',
       args: 'start',
       interpreter: 'none',
       cwd: '/var/www/frontend',
-      watch: false,
+      watch: true,
       max_memory_restart: '200M',
       // ... outras configurações ...
     },
   ],
-  // Configurações globais
-  deploy: {
-    production: {
-      // Configurações de produção
-    },
-    development: {
-      // Configurações de desenvolvimento
-    },
-  },
   // Configurações adicionais
   delay: 10000,
 };

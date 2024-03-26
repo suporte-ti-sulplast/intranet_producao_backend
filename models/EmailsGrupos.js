@@ -36,8 +36,8 @@ const EmailsGrupos = db.define('EmailsGrupos', {
 Usuarios.hasMany(EmailsGrupos, { foreignKey: 'createdBy' });
 EmailsGrupos.belongsTo(Usuarios, { foreignKey: 'createdBy', as: 'createdByUser' });
 
-EmailsGrupos.sync({force: true})
-//EmailsGrupos.sync()
+//EmailsGrupos.sync({force: true})
+EmailsGrupos.sync()
   .then(() => {
     console.log('Tabela criada EmailsGrupos com sucesso.');
   })
