@@ -1,10 +1,10 @@
 {
-  "name": "backend",
+  "name": "backend_2",
   "version": "2.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently \"cd ../frontend && npm start\" \"node app.js\"",
+    "start": "concurrently \"cd ../frontend_2 && npm start\" \"node app.js\"",
     "test": "node app.js"
   },
   "author": "",

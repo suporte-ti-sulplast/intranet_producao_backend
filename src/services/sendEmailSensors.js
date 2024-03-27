@@ -1,9 +1,10 @@
 const fs = require('fs');
-const path = require('path');
+/* const path = require('path'); */
+require('dotenv').config()
 const { getSensorDataRackSalaTI } = require('../conections/arduino');
 const cron = require('node-cron');
 const { sendEmailTempRackSalaTI } = require('../functions/sendEmail')
-
+const servidorPath = process.env.SERVIDORPATH;
 
 async  function sendEmailRackSalaTI(
                                   equipamento,
@@ -70,7 +71,7 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
 
     // Se ainda não obteve sucesso após 3 tentativas, imprime uma mensagem de erro
   if (!sensorData) {
-    console.error('Falha após 3 tentativas. Não foi possível obter dados do sensor.');
+/*     console.error('Falha após 3 tentativas. Não foi possível obter dados do sensor.'); */
   } else {
     // Calcula a temperatura como o valor mais alto entre sensorDHT11 e sensorDS18B20
     temperatura = Math.max(sensorData.sensorDHT11, sensorData.sensorDS18B20);
@@ -83,10 +84,10 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
       temperatura = temperatura.toFixed(1);
     }
     
-    console.log('Temperatura:', temperatura);
+/*     console.log('Temperatura:', temperatura); */
   }
 
-  const filePath = '/var/www/backend/public/files/monitorsData.json'; // Caminho absoluto
+  const filePath = `/var/www/${servidorPath}/public/files/monitorsData.json`; // Caminho absoluto
 
   try {
       // Lê o conteúdo do arquivo

@@ -1,5 +1,6 @@
 const fs = require('fs');
-const path = require('path');
+require('dotenv').config()
+const servidorPath = process.env.SERVIDORPATH
 
 function vouchers(numero) {
 
@@ -23,7 +24,7 @@ function vouchers(numero) {
       }
 
       // Caminho completo para o arquivo
-      const caminhoArquivo = '/var/www/backend/public/sharedFiles/vouchers/' + arquivoFiltrado;
+      const caminhoArquivo = `/var/www/${servidorPath}/public/sharedFiles/vouchers/` + arquivoFiltrado;
 
       // Ler o conteúdo do arquivo
       fs.readFile(caminhoArquivo, 'utf8', (err, data) => {

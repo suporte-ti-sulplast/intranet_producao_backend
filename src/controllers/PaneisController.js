@@ -1,6 +1,6 @@
 require('dotenv').config()
 const fs = require('fs');
-
+const servidorPath = process.env.SERVIDORPATH
 const PaineisDepartamentosModels = require('../../models/PaineisDepartamentos');
 const PaineisModels = require('../../models/Paineis');
 const UsuariosModel = require('../../models/Usuarios');
@@ -9,8 +9,6 @@ const UsuariosModel = require('../../models/Usuarios');
 exports.panelSearch = async (req, res) => {
 
   const { idDept } = req.body;
-
-  console.log('idDept', idDept)
 
   try {
         const painel = await PaineisDepartamentosModels.findOne({
@@ -107,7 +105,7 @@ exports.panelData = async (req, res) => {
 
   try {
     // Caminho do arquivo
-    const filePath = '/var/www/backend/public/files/painel.js';
+    const filePath = `/var/www/${servidorPath}/public/files/painel.js`;
 
     // Lê o conteúdo do arquivo
     const fileContent = fs.readFileSync(filePath, 'utf-8');

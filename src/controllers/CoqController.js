@@ -1,13 +1,13 @@
 require('dotenv').config()
 const fs = require('fs');
 const path = require('path');
+const servidorPath = process.env.SERVIDORPATH
 const ItModel = require('../../models/Its');
 const ItsDepartmentsViewersModel = require('../../models/ITsVisualizadores');
 const ItsDepartmentsOwnersModel = require('../../models/ITsElaboradores');
 const DepartmentsModel = require('../../models/Departamentos');
 const UserModels = require('../../models/Usuarios');
 const { sendEmailIT } = require('../functions/sendEmail');
-
 
 //SALVAR NOVA IT NO BANCO
 exports.sgiItCreate = async (req, res) => {
@@ -249,8 +249,7 @@ exports.sgiItsDelete = async (req, res) => {
   }
 
   const now = new Date();
-
-  const pastaOrigem = '/var/www/backend/public/sharedFiles/sgi/its';
+  const pastaOrigem = `/var/www/${servidorPath}/public/sharedFiles/sgi/its`;
   const subpastaDesativados = 'Desativados';
   const nomeArquivo = itName; // Substitua pelo nome real do arquivo
   const sufixo = `_DEL_${now.toISOString()}_${user}`;
