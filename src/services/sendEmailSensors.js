@@ -62,12 +62,11 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
       // Se chegou aqui sem lançar exceção, interrompe o loop
       break;
     } catch (error) {
-      console.error(`Erro na tentativa ${tentativa}: ${error.message}`);
+/*       console.error(`Erro na tentativa ${tentativa}: ${error.message}`); */
       // Aguarda um tempo antes da próxima tentativa (pode ajustar o tempo conforme necessário)
       await new Promise(resolve => setTimeout(resolve, 1000)); 
     }
   }
-
     // Se ainda não obteve sucesso após 3 tentativas, imprime uma mensagem de erro
   if (!sensorData) {
     console.error('Falha após 3 tentativas. Não foi possível obter dados do sensor.');
@@ -83,7 +82,7 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
       temperatura = temperatura.toFixed(1);
     }
     
-    console.log('Temperatura:', temperatura);
+/*     console.log('Temperatura:', temperatura); */
   }
 
   const filePath = '/var/www/backend/public/files/monitorsData.json'; // Caminho absoluto

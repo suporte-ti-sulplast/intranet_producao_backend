@@ -40,8 +40,8 @@ EmailsGruposUsuarios.belongsTo(Usuarios, { foreignKey: 'idUser', as: 'emailsUser
 Usuarios.hasMany(EmailsGruposUsuarios, { foreignKey: 'createdUpdatedBy' });
 EmailsGruposUsuarios.belongsTo(Usuarios, { foreignKey: 'createdUpdatedBy', as: 'createdByUser' });
 
-EmailsGruposUsuarios.sync({force: true})
-//EmailsGruposUsuarios.sync()
+//EmailsGruposUsuarios.sync({force: true})
+EmailsGruposUsuarios.sync()
   .then(() => {
     console.log('Tabela criada EmailsGruposUsuarios com sucesso.');
   })

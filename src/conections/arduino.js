@@ -13,7 +13,7 @@ async function getSensorDataRackSalaTI() {
             throw new Error(`Erro na solicitação. Código de status: ${response.status}`);
         }
     } catch (error) {
-        throw new Error(`Erro ao fazer a solicitação: ${error.message}`);
+/*         throw new Error(`Erro ao fazer a solicitação: ${error.message}`); */
     }
 }
 
