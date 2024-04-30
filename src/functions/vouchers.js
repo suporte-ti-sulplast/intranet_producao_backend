@@ -3,6 +3,8 @@ const path = require('path');
 
 function vouchers(numero) {
 
+  console.log(numero)
+
   const pasta = './public/sharedFiles/vouchers';
 
   return new Promise((resolve, reject) => {
@@ -15,6 +17,7 @@ function vouchers(numero) {
 
       // Filtrar os arquivos pelo número no nome
       const arquivoFiltrado = files.find(file => file.includes(numero));
+      console.log('arquivoFiltrado', arquivoFiltrado)
 
       if (!arquivoFiltrado) {
         // Se o arquivo não for encontrado, resolve com quantidade 0 e valores vazios
@@ -34,6 +37,7 @@ function vouchers(numero) {
 
         // Utilizando expressão regular para encontrar valores entre aspas
         const valoresEntreAspas = data.match(/"([^"]*)"/g);
+        console.log(valoresEntreAspas)
 
         if (!valoresEntreAspas) {
           // Se não houver valores entre aspas, resolve com quantidade 0 e valores vazios

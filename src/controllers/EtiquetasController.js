@@ -103,11 +103,109 @@ exports.coqLabelsPrintQuali = async (req, res) => {
     };
 };
 
+//IMPRIME A ETIQUETA DA RASTREABILIDADE  ************************************************************************************************************
+exports.coqLabelsPrintRastreabilidade = async (req, res) => {
+
+    const {printerName, linha1, data, qtdade} = req.body
+    let printer;
+
+    try {
+        printer = await PrintersModel.findOne({
+            attributes: ['printerName', 'model','ip','netUsb'],
+            where: {
+                printerName: printerName
+            },
+            raw: true,
+            nest: true,
+        });
+    } catch {
+        console.log("Houve um erro interno", error);
+        return res.status(500).json({ error: "Internal server error." });
+    };
+
+    let margemSuperior;
+
+    if(printer.netUsb === 'usb'){
+        margemSuperior = 10;
+    } else {
+        margemSuperior = 0;
+    };
+
+    const zplData = '^XA \n' + // Inicia o arquivo
+
+    '^LH0,'+ margemSuperior + '\n' +
+    '^CI28\n' + // Define a codificação UTF-8
+
+    '^FX \n' +
+    '^CF0,60 \n' +
+    '^FO65,35^FD' + linha1 + '^FS \n' +
+    '^CF0,30 \n' +
+    '^FO45,105^FD' + data + '^FS \n' +
+
+    '^FX \n' +
+    '^CF0,60 \n' +
+    '^FO280,35^FD' + linha1 + '^FS \n' +
+    '^CF0,30 \n' +
+    '^FO260,105^FD' + data + '^FS \n' +
+
+    '^FX \n' +
+    '^CF0,60 \n' +
+    '^FO485,35^FD' + linha1 + '^FS \n' +
+    '^CF0,30 \n' +
+    '^FO465,105^FD' + data + '^FS \n' +
+
+    '^FX \n' +
+    '^CF0,60 \n' +
+    '^FO695,35^FD' + linha1 + '^FS \n' +
+    '^CF0,30 \n' +
+    '^FO675,105^FD' + data + '^FS \n' +
+
+    '^XZ'; // Fecha o arquivo
+
+    if(printer.netUsb === 'usb'){
+        zebraPrinterLocal(zplData, qtdade, printer.printerName, printer.ip) 
+        .then((resultado) => {
+            if(resultado === true) {
+                msg = "Impressão concluída com sucesso!";
+                msg_type = "success";
+                return res.json({ msg, msg_type }); 
+            } else {
+                msg = "Houve um erro ao conectar com a impressora!";
+                msg_type = "error";
+                return res.json({ msg, msg_type }); 
+            }
+        })
+        .catch((erro) => {
+            msg = "Houve um erro ao conectar com a impressora!";
+            msg_type = "error";
+            return res.json({ msg, msg_type }); 
+        }); 
+    } else {
+        zebraRede(zplData, qtdade, printer.ip)
+        .then((resultado) => {
+            if(resultado === true) {
+                msg = "Impressão concluída com sucesso!";
+                msg_type = "success";
+                return res.json({ msg, msg_type }); 
+            } else {
+                msg = "Houve um erro ao conectar com a impressora!";
+                msg_type = "error";
+                return res.json({ msg, msg_type }); 
+            }
+        })
+        .catch((erro) => {
+            msg = "Houve um erro ao conectar com a impressora!";
+            msg_type = "error";
+            return res.json({ msg, msg_type }); 
+        });
+    };
+};
+
 
 //IMPRIME A ETIQUETA DA CURA   ************************************************************************************************************
 exports.coqLabelsPrintCura = async (req, res) => {
 
-    const {printerName, qtdade} = req.body
+    const {printerName, ano, qtdade} = req.body
 
     let printer;
 
@@ -141,9 +239,91 @@ exports.coqLabelsPrintCura = async (req, res) => {
 
     '^CF0,36^FO130,15^FB600,1,0,C^FDINÍCIO DA CURA DO PRODUTO^FS' +
     '^CF0,35\n' +
-    '^FO100,77^FD' + 'Data: ____/_____/ 2023    Hora: ____:____' + '^FS \n' +
+    '^FO100,77^FD' + 'Data: ____/_____/ ' + ano + '    Hora: ____:____' + '^FS \n' +
     '^CF0,30 \n' +
     '^FO240,132^FD' + 'Doc. de Ref. Folha de Processo' + '^FS \n' +
+
+    '^XZ'; // Fecha o arquivo
+
+    if(printer.netUsb === 'usb'){
+        zebraPrinterLocal(zplData, qtdade, printer.printerName, printer.ip) 
+        .then((resultado) => {
+            if(resultado === true) {
+                msg = "Impressão concluída com sucesso!";
+                msg_type = "success";
+                return res.json({ msg, msg_type }); 
+            } else {
+                msg = "Houve um erro ao conectar com a impressora!";
+                msg_type = "error";
+                return res.json({ msg, msg_type }); 
+            }
+        })
+        .catch((erro) => {
+            msg = "Houve um erro ao conectar com a impressora!";
+            msg_type = "error";
+            return res.json({ msg, msg_type }); 
+        }); 
+    } else {
+        zebraRede(zplData, qtdade, printer.ip)
+        .then((resultado) => {
+            if(resultado === true) {
+                msg = "Impressão concluída com sucesso!";
+                msg_type = "success";
+                return res.json({ msg, msg_type }); 
+            } else {
+                msg = "Houve um erro ao conectar com a impressora!";
+                msg_type = "error";
+                return res.json({ msg, msg_type }); 
+            }
+        })
+        .catch((erro) => {
+            msg = "Houve um erro ao conectar com a impressora!";
+            msg_type = "error";
+            return res.json({ msg, msg_type }); 
+        });
+    };
+};
+
+//IMPRIME A ETIQUETA DA CURA2   ************************************************************************************************************
+exports.coqLabelsPrintCura2 = async (req, res) => {
+
+    const {printerName, ano, qtdade} = req.body
+    console.log(ano)
+    let printer;
+
+    try {
+        printer = await PrintersModel.findOne({
+            attributes: ['printerName', 'model','ip','netUsb'],
+            where: {
+                printerName: printerName
+            },
+            raw: true,
+            nest: true,
+        });
+    } catch {
+        console.log("Houve um erro interno", error);
+        return res.status(500).json({ error: "Internal server error." });
+    };
+    
+    let margemSuperior;
+
+    if(printer.netUsb === 'usb'){
+        margemSuperior = 8;
+    } else {
+        margemSuperior = 0;
+    };
+    
+    const zplData = '^XA \n' + // Inicia o arquivo
+
+    '^LH0,'+ margemSuperior + '\n' +
+    '^CI28\n' + // Define a codificação UTF-8
+    '^FO145,0^GB550,55,5^FS' + // Adiciona a caixa gráfica com fundo preto
+
+    '^CF0,36^FO130,15^FB600,1,0,C^FDINÍCIO DA CURA DO PRODUTO^FS' +
+    '^CF0,30\n' +
+    '^FO90,77^FD' + 'Data: ____/_____/ ' + ano + '     Saída da estufa: ____:____' + '^FS \n' +
+    '^CF0,30 \n' +
+    '^FO340,132^FD' + ' Início do polimento: ____:____' + '^FS \n' +
 
     '^XZ'; // Fecha o arquivo
 

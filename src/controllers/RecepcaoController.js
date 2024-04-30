@@ -10,7 +10,7 @@ exports.getVoucherWifi = async (req, res) => {
   const email = 'suporte.ti@sulplast.com.br';
 
   const { horas } = req.body;
-
+  console.log(horas)
   vouchers(horas)
   .then(conteudo => {
 

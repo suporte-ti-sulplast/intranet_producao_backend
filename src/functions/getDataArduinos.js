@@ -10,6 +10,11 @@ async function monitorSensorDataRackSalaTI(seg) {
       try {
         const sensorData = await getSensorDataRackSalaTI();
 
+        // Verifica se há dados no sensorData antes de continuar
+        if (!sensorData || Object.keys(sensorData).length === 0) {
+          return;
+        }
+
         // Lê o conteúdo atual do arquivo, se existir
         let existingData = [];
         const filePath = 'public/files/sensorRackSalaTI.json';

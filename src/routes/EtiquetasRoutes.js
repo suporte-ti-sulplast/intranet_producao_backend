@@ -4,7 +4,9 @@ const router = express.Router();
 const EtiquetasController = require('../controllers/EtiquetasController');
 
 router.post('/etq-quali-print', EtiquetasController.coqLabelsPrintQuali); 
+router.post('/etq-rastreio-print', EtiquetasController.coqLabelsPrintRastreabilidade); 
 router.post('/etq-cura-print', EtiquetasController.coqLabelsPrintCura); 
+router.post('/etq-cura2-print', EtiquetasController.coqLabelsPrintCura2); 
 router.post('/etq-data-print', EtiquetasController.coqLabelsPrintData); 
 router.post('/etq-texto-print', EtiquetasController.coqLabelsPrintTexto); 
 router.post('/etq-roto-print-search', EtiquetasController.coqLabelsPrintRotoSearch); 

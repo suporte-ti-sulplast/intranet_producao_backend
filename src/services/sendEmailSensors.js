@@ -48,8 +48,8 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
   let dados;
 
   let sensorData = {
-    sensorDHT11: 0, 
-    sensorDS18B20: 0
+    sensorDS18B20_1: 0,
+    sensorDS18B20_2: 0
   };
 
   let antigoEstado = estadoAtual;
@@ -72,7 +72,7 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
     console.error('Falha após 3 tentativas. Não foi possível obter dados do sensor.');
   } else {
     // Calcula a temperatura como o valor mais alto entre sensorDHT11 e sensorDS18B20
-    temperatura = Math.max(sensorData.sensorDHT11, sensorData.sensorDS18B20);
+    temperatura = Math.max(sensorData.sensorDHT11, sensorData.sensorDS18B20_1, sensorData.sensorDS18B20_2);
 
     // Garante que temperatura é um número de ponto flutuante com uma casa decimal
     temperatura = Number(temperatura.toFixed(1));
@@ -82,7 +82,7 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
       temperatura = temperatura.toFixed(1);
     }
     
-/*     console.log('Temperatura:', temperatura); */
+    console.log('Temperatura:', temperatura);
   }
 
   const filePath = '/var/www/backend/public/files/monitorsData.json'; // Caminho absoluto

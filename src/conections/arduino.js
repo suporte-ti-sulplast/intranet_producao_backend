@@ -6,7 +6,6 @@ async function getSensorDataRackSalaTI() {
     const ArduinoURL = `http://${process.env.ARDUINO_RACK_SERVIDOR_IP}:${process.env.ARDUINO_RACK_SERVIDOR_PORT}/`;
     try {
         const response = await axios.get(ArduinoURL);
-
         if (response.status === 200) {
             return response.data;
         } else {
