@@ -1,7 +1,7 @@
 const e = require('cors');
 const nodemailer = require('nodemailer');
 
-//ENVIO DE EMAIL PARA SLTERAÇÃO DE SENHA
+//ENVIO DE EMAIL PARA ALTERAÇÃO DE SENHA
 function sendEmailPassword(nameComplete, e_mail, password) {
 
     const nome = nameComplete.split(' '); 
@@ -218,7 +218,56 @@ function sendEmailTempRackSalaTI(equipamento, local, category, direcaoMovimento,
   return ('Email enviado com sucesso!');
 
 };
-  
 
 
-module.exports = {sendEmailPassword, sendEmailIT, sendEmailVoucher, sendEmailTempRackSalaTI};
+//ENVIO DE EMAIL PARA ALTERAÇÃO DE SENHA
+function sendSenhasPDF(user, pdfBuffer) {
+
+  const { nameComplete, email } = user;
+  const transporter = nodemailer.createTransport({
+  host: process.env.MAIL_HOST || 'smtp.mailgun.org',
+  port: process.env.MAIL_PORT || 587,
+  secure: false, // Para TLS
+  auth: {
+      user: process.env.MAIL_USERNAME,
+      pass: process.env.MAIL_PASSWORD,
+    },
+  });
+
+  async function sendEmail() {
+    try {
+      const mailSent = await transporter.sendMail({
+        from: process.env.MAIL_FROM_ADDRESS,
+        to: email,
+        subject: `PDF do cofre de senhas`,
+        attachments: [
+            {
+                filename: 'relatorio cofre de senhas.pdf', // Nome do anexo
+                content: pdfBuffer // Conteúdo do PDF em buffer
+            }
+        ],
+        html: `
+          <br>
+          <h1 style="background-color: green; color: white;"><strong>RELATÓRIO COFRE DE SENHAS!</strong>
+          </h1>
+          <p>Olá, <strong>${nameComplete.split(' ')[0].toUpperCase()}</strong>.</p>
+          <p>Conform solicitado, segue anexo, o PDF com a lista do cofre de senhas.</p>
+          <p>Lembre-se de que se for feito o download é importante não deixar salvo na máquina local.</p>
+          <p><strong>Este é um e-mail gerado automaticamente pelo sistema INTRANET SULPLAST, favor não responder.</strong></p>
+          <p  style="background-color: black; color: white;" >Att, TECNOLOGIA DA INFORMAÇÃO</strong></p>
+        `,
+      });
+    } catch (error) {
+      console.error('Erro ao enviar e-mail:', error);
+      return ('Erro ao enviar e-mail!');
+    }
+  }
+
+  sendEmail();
+
+  return ('Email enviado com sucesso!');
+
+};  
+
+
+module.exports = {sendEmailPassword, sendEmailIT, sendEmailVoucher, sendEmailTempRackSalaTI, sendSenhasPDF};

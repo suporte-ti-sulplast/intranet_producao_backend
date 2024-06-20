@@ -11,7 +11,6 @@ exports.rackSalaTI = async (req, res) => {
       if (fs.existsSync(filePath)) {
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         const sensorData = JSON.parse(fileContent);
-
         return res.status(200).json(sensorData);
       } else {
         console.log("Não achou o file");

@@ -48,7 +48,7 @@ async function monitorSensorDataRackSalaTI(seg) {
         fs.writeFileSync(filePath, jsonData);
 
       } catch (error) {
-        console.error('Erro ao obter dados do sensor:', error.message);
+        /* console.error('Erro ao obter dados do sensor:', error.message); */
       }
     };
 

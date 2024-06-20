@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -31,6 +31,7 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.4",
     "pm2": "^5.3.1",
+    "puppeteer": "^22.11.0",
     "react-modal": "^3.16.1",
     "sequelize": "^6.32.1"
   }

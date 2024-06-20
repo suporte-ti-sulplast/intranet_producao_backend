@@ -7,7 +7,7 @@ module.exports = {
       instances: 2,
       exec_mode: 'cluster',
       watch: false,
-      max_memory_restart: '200M',
+      max_memory_restart: '500M',
       // ... outras configurações ...
     },
     {
@@ -17,7 +17,7 @@ module.exports = {
       interpreter: 'none',
       cwd: '/var/www/frontend',
       watch: false,
-      max_memory_restart: '200M',
+      max_memory_restart: '500M',
       // ... outras configurações ...
     },
   ],

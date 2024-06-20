@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../src/conections/db');
+const db = require('../srcOLD/conections/db');
 const Departamentos = require('./Departamentos');
 const Status = require('./Status');
 
@@ -66,6 +66,10 @@ const Usuarios = db.define('Usuarios',{
     },
     badge:  {
       type: Sequelize.STRING(100),
+    },
+    level: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
     },
 });
 

@@ -1,9 +1,8 @@
 const fs = require('fs');
-const path = require('path');
+require('dotenv').config()
+const servidorPath = process.env.SERVIDORPATH
 
 function vouchers(numero) {
-
-  console.log(numero)
 
   const pasta = './public/sharedFiles/vouchers';
 
@@ -17,7 +16,6 @@ function vouchers(numero) {
 
       // Filtrar os arquivos pelo número no nome
       const arquivoFiltrado = files.find(file => file.includes(numero));
-      console.log('arquivoFiltrado', arquivoFiltrado)
 
       if (!arquivoFiltrado) {
         // Se o arquivo não for encontrado, resolve com quantidade 0 e valores vazios
@@ -26,7 +24,7 @@ function vouchers(numero) {
       }
 
       // Caminho completo para o arquivo
-      const caminhoArquivo = '/var/www/backend/public/sharedFiles/vouchers/' + arquivoFiltrado;
+      const caminhoArquivo = `/var/www/${servidorPath}/public/sharedFiles/vouchers/` + arquivoFiltrado;
 
       // Ler o conteúdo do arquivo
       fs.readFile(caminhoArquivo, 'utf8', (err, data) => {
@@ -37,7 +35,6 @@ function vouchers(numero) {
 
         // Utilizando expressão regular para encontrar valores entre aspas
         const valoresEntreAspas = data.match(/"([^"]*)"/g);
-        console.log(valoresEntreAspas)
 
         if (!valoresEntreAspas) {
           // Se não houver valores entre aspas, resolve com quantidade 0 e valores vazios

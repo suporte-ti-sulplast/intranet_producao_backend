@@ -32,6 +32,10 @@ const LogsAcessos = db.define('LogsAcessos',{
     type: Sequelize.STRING(40),
     allowNull: false,
   },
+  screen: {
+    type: Sequelize.STRING(50),
+    allowNull: false,
+  },
   browser: {
     type: Sequelize.STRING(255),
     allowNull: false,

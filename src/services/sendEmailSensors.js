@@ -1,9 +1,10 @@
 const fs = require('fs');
-const path = require('path');
+/* const path = require('path'); */
+require('dotenv').config()
 const { getSensorDataRackSalaTI } = require('../conections/arduino');
 const cron = require('node-cron');
 const { sendEmailTempRackSalaTI } = require('../functions/sendEmail')
-
+const servidorPath = process.env.SERVIDORPATH;
 
 async  function sendEmailRackSalaTI(
                                   equipamento,
@@ -36,18 +37,17 @@ async  function sendEmailRackSalaTI(
   'Desconhecido'; 
 
   if(envia) {
-    const email = sendEmailTempRackSalaTI(equipamento, local, category, direcaoMovimento, estado, temperatura, destinatario)
+/*     const email = sendEmailTempRackSalaTI(equipamento, local, category, direcaoMovimento, estado, temperatura, destinatario) */
   } else{
     console.log('Não precisou enviar o email')
   }
-};
-
+}; 
 
 async function fetchSensorDataRackSalaTI(estadoAtual) {
 
   let dados;
-
-  let sensorData = {
+  let sensorData = {     
+    sensorDHT11: 0, 
     sensorDS18B20_1: 0,
     sensorDS18B20_2: 0
   };
@@ -67,9 +67,10 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
       await new Promise(resolve => setTimeout(resolve, 1000)); 
     }
   }
+
     // Se ainda não obteve sucesso após 3 tentativas, imprime uma mensagem de erro
   if (!sensorData) {
-    console.error('Falha após 3 tentativas. Não foi possível obter dados do sensor.');
+/*     console.error('Falha após 3 tentativas. Não foi possível obter dados do sensor.'); */
   } else {
     // Calcula a temperatura como o valor mais alto entre sensorDHT11 e sensorDS18B20
     temperatura = Math.max(sensorData.sensorDHT11, sensorData.sensorDS18B20_1, sensorData.sensorDS18B20_2);
@@ -82,10 +83,11 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
       temperatura = temperatura.toFixed(1);
     }
     
-    console.log('Temperatura:', temperatura);
+/*     console.log('Temperatura:', temperatura); */
   }
 
-  const filePath = '/var/www/backend/public/files/monitorsData.json'; // Caminho absoluto
+
+  const filePath = `/var/www/${servidorPath}/public/files/monitorsData.json`; // Caminho absoluto
 
   try {
       // Lê o conteúdo do arquivo
@@ -183,7 +185,7 @@ async function rackSalaTI(intervaloMinutos) {
               }
               estadoAtual = retorno.novoEstado //atualizado o estado
               count = 0; //zera o contador
-              console.log("temperatura que vai para o email", temperatura)
+/*               console.log("temperatura que vai para o email", temperatura) */
               
               sendEmailRackSalaTI(equipamento,
                                   local,

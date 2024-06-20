@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../src/conections/db');
+const db = require('../srcOLD/conections/db');
 const NiveisAcessos = require('./NiveisAcessos');
 
 const Departamentos = db.define('Departamentos',{
@@ -14,10 +14,16 @@ const Departamentos = db.define('Departamentos',{
         allowNull: false,
         unique: true,
     },
-    supervisor: {
-        type: Sequelize.STRING(40),
-        allowNull: true,
-    }
+    supervisor1: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      unique: false,
+    },
+    supervisor2: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      unique: false,
+  }
 });
 
 Departamentos.belongsTo(NiveisAcessos, {
@@ -34,3 +40,16 @@ Departamentos.sync()
   });
 
 module.exports = Departamentos;
+
+// Importe Usuarios após a definição de Departamentos para evitar círculos de dependência
+const Usuarios = require('./Usuarios');
+
+// Defina as associações após a importação de Usuarios
+Departamentos.belongsTo(Usuarios, {
+  foreignKey: 'supervisor1',
+  as: 'super1'
+});
+Departamentos.belongsTo(Usuarios, {
+  foreignKey: 'supervisor2',
+  as: 'super2'
+});

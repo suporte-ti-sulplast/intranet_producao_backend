@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../src/conections/db');
+const db = require('../srcOLD/conections/db');
 const Applications = require('./Aplicacoes');
 
 const AplicacoesDepartamentos = db.define('AplicacoesDepartamentos',{
