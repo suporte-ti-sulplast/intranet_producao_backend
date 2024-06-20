@@ -46,7 +46,8 @@ auth.post('/', async (req, res) => {
 
     var userLogin, token;
     var userOK = null;
-    const { login, password } = req.body;
+    const { login, password, screen } = req.body;
+    console.log(login, password, screen)
 
 /*     try {
         const authenticate = await authenticateUser(login, password )
@@ -249,6 +250,7 @@ auth.post('/', async (req, res) => {
         failedAttempts: fail,
         ipAddress: ipv4Address,
         browser: userAgent,
+        screen: `${screen.larguraTela} - ${screen.alturaTela} - ${screen.browserDPI} `,
     };
 
     //ATUALIZA A TABELA COM O NOVO VALOR

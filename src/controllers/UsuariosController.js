@@ -1,15 +1,14 @@
-const { Op, literal } = require('sequelize');
-const moment = require('moment');
-const AccessLevelModel = require('../../models/NiveisAcessos');
 const LogsTrocaSenhasModel = require('../../models/LogsTrocaSenhas');
 const DepartmentsModel = require('../../models/Departamentos');
 const StatusesModel = require('../../models/Status');
 const UsersModel = require('../../models/Usuarios');
-const AccessAplicationsModel = require('../../models/AplicacoesDepartamentos');
-const AplicationsModel = require('../../models/Aplicacoes');
 const SettingsModel = require('../../models/Configuracoes');
 const EmailsGruposModel = require('../../models/EmailsGrupos');
 const EmailsGruposUsuariosModel = require('../../models/EmailsGruposUsuarios');
+const TelasPermissoesUsuariosModel = require('../../models/TelasPermissoesUsuarios');
+const SistemasModel = require('../../models/Sistemas');
+const SistemasUsuariosModel = require('../../models/SistemasUsuarios');
+const SistemasDepartamentosModel = require('../../models/SistemasDepartamentos');
 const calcularDiferencaEmDias = require('../functions/paswordAge');
 const { sendEmailPassword } = require('../functions/sendEmail');
 const Sequelize = require('sequelize');
@@ -39,120 +38,6 @@ const decryptIdBadge = (encryptedIdBadge) => {
   };
 
 
-//PESQUISA FILTRO DO USUÁRIO  ************************************************************************************************************
-exports.pesquisaUsers = async (req, res) => {
-
-  // Use as datas de início e fim conforme fornecidas no corpo da solicitação
-  const dataInicial = req.body.filter.dtInicio === "" ? moment("1900-01-01", 'YYYY-MM-DD') : moment(req.body.filter.dtInicio, 'YYYY-MM-DD');
-  const dataFinal = req.body.filter.dtFim === "" ? moment("3000-01-01", 'YYYY-MM-DD') : moment(req.body.filter.dtFim, 'YYYY-MM-DD');
-
-  const bool = (e) => {
-    if (e === "Todos") return "";
-    if (e === "Não") return 0;
-    if (e === "Sim") return 1;
-  }
-
-  const { login, name, email, coq} = req.body.filter;
-  const sendEmail = bool(req.body.filter.sendEmail);
-  const shared = bool(req.body.filter.shared);
-  var depto, level, stts;
-  const whereClauseDept = {};
-  const whereClauseStts = {};
-  const whereClauseLvvl = {};
-
-  if(req.body.filter.depto === "Todos") {
-    depto = null;
-  } else {
-    const dpto = await DepartmentsModel.findOne({
-      attributes: ['idDept', 'department'],
-      where: {department :req.body.filter.depto }
-    });
-    depto = dpto.idDept;
-    whereClauseDept.idDept = depto;
-  };
-
-  if(req.body.filter.stts === "Todos") {
-    stts = null;
-  } else {
-    const sts = await StatusesModel.findOne({
-      attributes: ['idStatus', 'status'],
-      where: {status :req.body.filter.stts }
-    });
-    stts = sts.idStatus;
-    whereClauseStts.idStatus = stts;
-  };
-
-  if(req.body.filter.level === "Todos") {
-    level = null;
-  } else {
-    const lvl = await AccessLevelModel.findOne({
-      attributes: ['idLevel', 'accessLevel'],
-      where: {accessLevel :req.body.filter.level }
-    });
-    level = lvl.idLevel;
-    whereClauseLvvl.idLevel = level;
-  };
-
-  try {
-    const users = await UsersModel.findAll({
-      where: {
-        login: {
-          [Op.like]: `%${login}%`
-        },
-        nameComplete: {
-          [Op.like]: `%${name}%`
-        },
-        email: {
-          [Op.like]: `%${email}%`
-        },
-        codCQ: {
-          [Op.like]: `%${coq}%`
-        },
-        sendEmail: {
-          [Op.like]: `%${sendEmail}%`
-        },
-        sharedUser: {
-          [Op.like]: `%${shared}%`
-        },
-        createdAt: {
-          [Op.between]: [
-            literal(`DATE("${dataInicial.format('YYYY-MM-DD')}")`), // Trunca a data de início
-            literal(`DATE("${dataFinal.format('YYYY-MM-DD')}") + INTERVAL 1 DAY`) // Adiciona 1 dia para incluir o dia final
-          ]
-        },
-      },
-        attributes: ['idUser', 'login', 'email', 'nameComplete', 'sharedUser', 'idStatus', 'codCQ', 'sendEmail', 'agePassword', 'createdAt'],
-        include: [{ 
-          model: DepartmentsModel,
-          attributes: ['department', 'idDept'],
-          where: whereClauseDept,
-          include: [{
-              model: AccessLevelModel,
-              attributes: ['idlevel','accessLevel'],
-              where: whereClauseLvvl,
-          }]
-        },
-        {
-          model: StatusesModel,
-          attributes: ['status', 'idStatus'],
-          where: whereClauseStts,
-        }      
-      ],
-        raw: true,
-        nest: true,
-        order: [['login', 'ASC']]
-    });
-
-      return res.json({ users });
-
-  } catch (error) {
-      console.log("Houve um erro interno", error);
-      return res.status(500).json({ error: "Internal server error." });
-  }
-};
-
-
-
 //RETORNA O USUÁRIO LOGADO ************************************************************************************************************
 exports.userLogged = async (req, res) => {
 
@@ -161,18 +46,11 @@ exports.userLogged = async (req, res) => {
   
   const logged = await UsersModel.findOne({
     where: { login: user },
-      attributes: ['idUser', 'login', 'email', 'nameComplete', 'agePassword','forcedChangePassword', 'codCQ', 'badge'],
+      attributes: ['idUser', 'login', 'email', 'level', 'nameComplete', 'agePassword','forcedChangePassword', 'codCQ', 'badge'],
       include: [
         { 
           model: DepartmentsModel,
-          attributes: ['department', 'idDept', 'idlevel'],
-          include: [
-            {
-              model: AccessLevelModel,
-              attributes: ['accessLevel', 'idLevel'],
-              order: ['department', 'ASC']  
-            },           
-          ]
+          attributes: ['department', 'idDept'],
         },
         {
           model: StatusesModel,
@@ -207,23 +85,7 @@ exports.userLogged = async (req, res) => {
     dataAge = (maxAgePassword - calcularDiferencaEmDias(logged.agePassword));
   }
 
-  const idDept = logged.Departamento.idDept;
-
-  const acessAplications = await AccessAplicationsModel.findAll({
-    where: { idDept: idDept },
-    attributes: ['idApplications', 'idDept'],
-    include: [{ 
-      model: AplicationsModel,
-      attributes: ['applications', 'image'],
-      where: {idStatus: 1},
-    }], 
-    raw : true ,
-    nest : true
-  });
-
-  applicationsList = acessAplications.map(item => item.Aplicaco.applications);
-
-  return res.json({ logged,  applicationsList, dataAge, settings });
+  return res.json({ logged, dataAge, settings });
 };
 
 
@@ -233,17 +95,12 @@ exports.userList = async (req, res) => {
 
   try {
       const respostas = await UsersModel.findAll({
-          attributes: ['idUser', 'login', 'email', 'nameComplete', 'idStatus', 'sendEmail', 'agePassword', 'createdAt', 'codCQ', 'badge', 'birthdate'],
+          attributes: ['idUser', 'login', 'email', 'nameComplete', 'level', 'idStatus', 'sendEmail', 'agePassword', 'createdAt', 'codCQ', 'badge', 'birthdate'],
           include: [{ 
             model: DepartmentsModel,
             attributes: ['department', 'idDept'],
-            include: [{
-                model: AccessLevelModel,
-                attributes: ['idlevel','accessLevel'],
-            }]
           },
           {
-            
             model: StatusesModel,
             attributes: ['status', 'idStatus'],
           }      
@@ -252,6 +109,8 @@ exports.userList = async (req, res) => {
           nest: true,
           order: [['login', 'ASC']]
       });
+
+      const resp = await TelasPermissoesUsuariosModel.findAll();
 
       // Descriptografa o idBadge para cada usuário no resultado da consulta
       const users = respostas.map(resposta => {
@@ -285,15 +144,11 @@ exports.userEdit = async (req, res) => {
 
   const user = await UsersModel.findOne({
     where: { idUser: userId },
-      attributes: ['idUser', 'login', 'email', 'nameComplete', 'idDept','sendEmail', 'idStatus' , 'codCQ', 'badge', 'birthdate'],
+      attributes: ['idUser', 'login', 'email', 'nameComplete', 'idDept','sendEmail', 'idStatus' , 'codCQ', 'level', 'badge', 'birthdate', 'forcedChangePassword'],
       include: [
         { 
           model: DepartmentsModel,
-          attributes: ['department', 'idDept', 'idlevel'],
-              include: [{
-                  model: AccessLevelModel,
-                  attributes: ['idlevel','accessLevel'],
-              }]
+          attributes: ['department', 'idDept'],
         },
         {
           model: StatusesModel,
@@ -316,11 +171,7 @@ exports.userEdit = async (req, res) => {
 }
 
   const deptto = await DepartmentsModel.findAll({
-    attributes: ['department', 'idlevel'],
-        include: [{
-            model: AccessLevelModel,
-            attributes: ['idlevel','accessLevel'],
-        }],
+    attributes: ['department'],
     raw : true,
     nest : true
   });
@@ -344,22 +195,14 @@ exports.userCreate = async (req, res) => {
       attributes: ['idUser', 'login', 'email', 'nameComplete', 'idStatus', 'sendEmail'],
       include: [{ 
         model: DepartmentsModel,
-        attributes: ['department', 'idlevel'],
-            include: [{
-                model: AccessLevelModel,
-                attributes: ['idlevel','accessLevel'],
-            }]
+        attributes: ['department'],
     }],
     raw : true,
     nest : true
   });
 
   const deptto = await DepartmentsModel.findAll({
-    attributes: ['department', 'idlevel'],
-        include: [{
-            model: AccessLevelModel,
-            attributes: ['idlevel','accessLevel'],
-        }],
+    attributes: ['department'],
     raw : true,
     nest : true
   })
@@ -371,11 +214,7 @@ exports.userCreate = async (req, res) => {
 exports.depptoStattus = async (req, res) => {
 
   const deptto = await DepartmentsModel.findAll({
-    attributes: ['idDept', 'department', 'idlevel'],
-        include: [{
-            model: AccessLevelModel,
-            attributes: ['idlevel','accessLevel'],
-        }],
+    attributes: ['idDept', 'department'],
     raw : true,
     nest : true,
     order: [['department', 'ASC']]
@@ -387,13 +226,8 @@ exports.depptoStattus = async (req, res) => {
     nest : true
  });
 
- const level = await AccessLevelModel.findAll({
-  attributes: ['idLevel', 'accessLevel'],
-  raw : true,
-  nest : true
-});
 
-  return res.json({ deptto, stattus, level });
+  return res.json({ deptto, stattus });
 
 };
 
@@ -471,21 +305,28 @@ exports.userAddBD = async (req, res) => {
   var crachaCrypto = (idBadge !== null && idBadge !== undefined && idBadge !== '') ? encryptData(idBadge) : '';
   var msg, msg_type;
 
+  const sistemasMarcados = req.body.sistemasMarcados
+
+  console.log(sistemasMarcados)
+
   //COLOCA O NOVO VALOR NUMA VARIAVEL
   const novoUsuario  = {
       login: req.body.login,
       nameComplete: req.body.name,
       email: req.body.email,
       idDept: req.body.setorId,
+      level: req.body.level,
       idStatus: req.body.statusId,
       sendEmail: req.body.recebeEmail,
+      forcedChangePassword: req.body.trocaSenha,
       password: password,
       agePassword: dataAtual,
-      forcedChangePassword: 'N',
       codCQ: req.body.codCQ,
       badge: crachaCrypto,
       birthdate: req.body.birthdate
   };
+
+/*   console.log(novoUsuario) */
 
   //ATUALIZA A TABELA COM O NOVO VALOR
   await UsersModel.create(novoUsuario).then(() => {
@@ -498,14 +339,46 @@ exports.userAddBD = async (req, res) => {
       msg_type = "error"
   }) ;
 
-    //SALVA A CRIAÇÃO DE SENHA NO LOG DE SENHAS
+  //SALVA A CRIAÇÃO DE SENHA NO LOG DE SENHAS
+  //busca o id do usuário criado
+  const createdUser = await UsersModel.findOne({
+    where: { login: req.body.login },
+      attributes: ['idUser'],
+    raw : true,
+    nest : true
+  });
+
+  //SALVA A CRIAÇÃO DE SENHA NO LOG DE SENHAS
   //busca quem usuário fez a alteração/criação
   const logged = await UsersModel.findOne({
-    where: { idUser: req.body.idUser },
+    where: { login: req.body.login },
       attributes: ['login'],
     raw : true,
     nest : true
   });
+
+  if(sistemasMarcados.length > 0) {
+    sistemasMarcados.forEach(item => {
+      inserirRegistroNaTabela(item); // 
+    });
+  } else {
+    msg = "Não houve acesso para criar"
+  }
+
+  //SALVA SISTEMAS NA TABELA SISTEMASUSUÁRIOS
+  function inserirRegistroNaTabela(item) {
+    const idUser = createdUser.idUser
+    SistemasUsuariosModel.create({
+      idSys: item,
+      idUser: idUser,
+    }).then(() => {
+        console.log(`Registro adicionado`, item, idUser);
+    }).catch(err => {
+        console.error(`Erro ao adicionar registro: ${err}`);
+    });
+  }
+
+
 
   //busca os dados do ip e navegador
   const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -527,7 +400,7 @@ exports.userAddBD = async (req, res) => {
       console.log("erro", err);
   }) ;
 
-  return res.json({ msg, msg_type });
+  return res.json({ msg, msg_type, createdUser });
 };
 
 //ALTERAÇÃO DE USUÁRIO NO BD
@@ -535,9 +408,12 @@ exports.userUpdateBD = async (req, res) => {
 
   var msg, msg_type;
   const userId = parseInt(req.body.userId);
+  const sistemasMarcados = req.body.sistemasMarcados;
+  const sistemasMarcadosChange = req.body.sistemasMarcadosChange
 
-  console.log(req.body.cracha)
-  console.log(typeof(req.body.cracha))
+  console.log(req.body)
+  console.log(sistemasMarcados)
+  console.log(sistemasMarcadosChange)
 
   const idBadge = req.body.cracha && req.body.cracha.trim() !== '' ? req.body.cracha : null;
   var crachaCrypto = (idBadge !== null && idBadge !== undefined && idBadge !== '') ? encryptData(idBadge) : '';
@@ -547,6 +423,7 @@ exports.userUpdateBD = async (req, res) => {
       nameComplete: req.body.textName,
       email: req.body.textEmail,
       idDept: req.body.setorId,
+      level: req.body.level,
       idStatus: req.body.statusId,
       sendEmail: req.body.recebeEmail,
       codCQ: req.body.codCQ,
@@ -568,6 +445,42 @@ exports.userUpdateBD = async (req, res) => {
     msg = "Houve um erro interno.";
     msg_type = "error";
   });
+
+  //verifica se houve alteração no sistemas
+  if(sistemasMarcadosChange) {
+    //se houve alteração no sistemas
+    SistemasUsuariosModel.destroy({
+      where: {
+        idUser: userId
+      }
+    }).then(() => {
+      console.log("registros de sistemas excluido com sucesso");
+    }).catch((err) => {
+        console.log("erro", err);
+    });
+
+    if(sistemasMarcados.length > 0) {
+      sistemasMarcados.forEach(item => {
+        inserirRegistroNaTabela(item); // 
+      });
+    } else {
+      msg = "Não houve acesso para criar"
+    }
+  
+    //ATUALIZA SISTEMAS NA TABELA SISTEMASUSUÁRIOS
+    function inserirRegistroNaTabela(item) {
+      SistemasUsuariosModel.create({
+        idSys: item,
+        idUser: userId,
+      }).then(() => {
+          console.log(`Registro adicionado`, item, userId);
+      }).catch(err => {
+          console.error(`Erro ao adicionar registro: ${err}`);
+      })
+    }
+  } else {
+
+  }
 
   return res.json({ msg, msg_type });
 };
@@ -663,7 +576,22 @@ exports.userDelete = async (req, res) => {
   var id = parseInt(req.body.id)
   var msg, msg_type;
 
-  // ATUALIZA A TABELA COM O NOVO VALOR
+
+  // Exclui as linhas correspondentes na tabela TelasPermissoesUsuariosModel
+  await TelasPermissoesUsuariosModel.destroy({
+    where: {
+      idUser: id
+    }
+  });
+
+   // Exclui as linhas correspondentes na tabela SistemasUsuariosModel
+  await SistemasUsuariosModel.destroy({
+    where: {
+      idUser: id
+    }
+  });
+  
+  // Exclui o usuário da tabela USERS
   await UsersModel.destroy({
     where: {
       idUser: id
@@ -1000,7 +928,7 @@ exports.grupoEmailDeleteUsers = async (req, res) => {
   return res.json({ msg, msg_type });
 };
 
-//ADIÇÃI DE DE EMAILS DO GRUPO
+//ADIÇÃO DE DE EMAILS DO GRUPO
 exports.grupoEmailAdd = async (req, res) => {
 
   var {idGpr, selectedEmail, idUser} = req.body
@@ -1024,8 +952,62 @@ exports.grupoEmailAdd = async (req, res) => {
   return res.json({ msg, msg_type });
 };
 
+//BUSCA DOS SISTEMAS
+exports.findSystems = async (req, res) => {
+
+  try {
+    const sistemas = await SistemasModel.findAll();
+
+    return res.json({sistemas});
+    
+  } catch (error) {
+      console.log("Houve um erro interno", error);
+      return res.status(500).json({ error: "Internal server error." });
+  }   
+};
+
+//BUSCA DOS SISTEMAS do usuário
+exports.findSystemsUser = async (req, res) => {
+
+  const { idUser } = req.body;
+
+  try {
+    const sistemasUsuário = await SistemasUsuariosModel.findAll({
+      attributes: ['idSys'],
+      where: {
+        idUser: idUser
+      }
+    });
+
+    return res.json({sistemasUsuário});
+    
+  } catch (error) {
+      console.log("Houve um erro interno", error);
+      return res.status(500).json({ error: "Internal server error." });
+  }   
+};
 
 
+//BUSCA DOS SISTEMAS do departamento
+exports.findSystemsDepartments = async (req, res) => {
+  
+  const { idDept } =  req.body;
+
+  try {
+    const sistemasDepartamentos = await SistemasDepartamentosModel.findAll({
+      attributes: ['idSys'],
+      where: {
+        idDept: idDept
+      }
+    });
+
+    return res.json({sistemasDepartamentos});
+    
+  } catch (error) {
+      console.log("Houve um erro interno", error);
+      return res.status(500).json({ error: "Internal server error." });
+  }   
+};
 
 
 

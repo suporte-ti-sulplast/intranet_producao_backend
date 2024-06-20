@@ -16,7 +16,7 @@ const SenhasCofres = db.define('SenhasCofres', {
     allowNull: true,
   },
   userName: {
-    type: Sequelize.STRING(40),
+    type: Sequelize.STRING(50),
     allowNull: true,
   },
   password: {
@@ -31,7 +31,15 @@ const SenhasCofres = db.define('SenhasCofres', {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
+  link: {
+    type: Sequelize.STRING(150),
+    allowNull: true,
+  },
   createdBy: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+  level: {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
@@ -40,12 +48,16 @@ const SenhasCofres = db.define('SenhasCofres', {
     allowNull: false,
   },
   email_1: {
-    type: Sequelize.STRING(30),
+    type: Sequelize.STRING(50),
     allowNull: true,
   },
   email_2: {
-    type: Sequelize.STRING(30),
+    type: Sequelize.STRING(50),
     allowNull: true,
+  },
+  mfa: {
+    type: Sequelize.STRING(1),
+    allowNull: false,
   },
   updatedAt: {
     type: Sequelize.DATE,

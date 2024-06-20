@@ -3,24 +3,23 @@ const dbDelsoft = require('../conections/dbDelsoft');
 //DIMENSIONA CARGA ************************************************************************************************************
 exports.vendasPeriodoCliente = async (req, res) => {
 
-    const { dataInit, dataFim, cliente1, cliente2 } = req.body;
-
-    console.log('CHEGOU NO CONTROLLER')
+  const { dataInit, dataFim, cliente1, cliente2, cliente3 } = req.body;
 
     try {
 
-        const resultado = await dbDelsoft.query(
-            'SELECT * FROM dbo.VENDAS_ObterDadosPedidos(:dataInit,:dataFim,:cliente1,:cliente2);',
-            {
-              replacements: { 
-                dataInit: dataInit, 
-                dataFim: dataFim, 
-                cliente1: cliente1, 
-                cliente2: cliente2
-              },
-              type: dbDelsoft.QueryTypes.SELECT,
-            }
-        );
+      const resultado = await dbDelsoft.query(
+        'SELECT * FROM dbo.VENDAS_ObterDadosPedidos(:dataInit,:dataFim,:cliente1,:cliente2,:cliente3);',
+        {
+          replacements: { 
+            dataInit: dataInit, 
+            dataFim: dataFim, 
+            cliente1: cliente1, 
+            cliente2: cliente2,
+            cliente3: cliente3
+          },
+          type: dbDelsoft.QueryTypes.SELECT,
+        }
+    );
 
         return res.json({ resultado });
         

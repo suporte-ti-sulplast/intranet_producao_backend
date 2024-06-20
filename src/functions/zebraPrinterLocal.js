@@ -2,7 +2,6 @@ const { exec } = require('child_process');
 require('dotenv').config();
 
 function zebraPrinterLocal(data, qtidade, nomeImpressora, ip) {
-
   let usuario, senha;
 
   if(nomeImpressora === 'ZBR09') {
@@ -12,7 +11,6 @@ function zebraPrinterLocal(data, qtidade, nomeImpressora, ip) {
     usuario = process.env.ZBR_USER;
     senha = process.env.ZBR_PWD;
   };
-
 
   return new Promise((resolve, reject) => {
     const comandoImpressao = `echo "${data}" | smbclient //${ip}/${nomeImpressora} -U ${usuario}%${senha} -c 'print -'`;

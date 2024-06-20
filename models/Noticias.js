@@ -17,14 +17,8 @@ const News = db.define('Noticias',{
     text: {
         type: Sequelize.STRING(750),
     },
-    imageName: {
-      type: Sequelize.STRING(255),
-    },
     link: {
       type: Sequelize.STRING(255),
-    },
-    image: {
-        type: Sequelize.STRING(255),
     },
     idStatus: {
       type: Sequelize.INTEGER,
@@ -34,10 +28,7 @@ const News = db.define('Noticias',{
     },
     dateEnd: {
       type: Sequelize.DATEONLY,
-    },
-    idNewsCategory: {
-      type: Sequelize.INTEGER(4),
-    },
+    }
 });
 
 //News.sync({force: true})

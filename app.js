@@ -16,6 +16,8 @@ app.use((req, res, next) => {
   const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
   const origin = req.headers.origin;
 
+
+  // Verifica se a origem da solicitação está na lista de origens permitidas
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
   }
@@ -32,16 +34,20 @@ const UsuariosRoutes = require('./src/routes/UsuariosRoutes');
 const NoticiasRoutes = require('./src/routes/NoticiasRoutes');
 const EtiquetasRoutes = require('./src/routes/EtiquetasRoutes');
 const ImpressorasRoutes = require('./src/routes/ImpressorasRoutes');
+const DepartamentosRoutes = require('./src/routes/DepartamentosRoutes');
 const SenhasCofreRoutes = require('./src/routes/SenhasCofreRoutes');
 const RelatoriosRoutes = require('./src/routes/RelatoriosRoutes');
 const PortariaRoutes = require('./src/routes/PortariaRoutes');
 const ArquivosRouter = require('./src/routes/ArquivosRouter'); 
 const CoqRoutes = require('./src/routes/CoqRoutes'); 
 const PaineisRoutes = require('./src/routes/PaineisRoutes'); 
-const RecepcaoRouters = require('./src/routes/RecepcaoRouters'); 
+const RecepcaoRouters = require('./src/routes/RecepcaoRoutes'); 
+const PcpRouters = require('./src/routes/PcpRoutes'); 
 const MonitoresRouter = require('./src/routes/MonitoresRouter'); 
 const DelsoftRouter = require('./src/routes/DelsoftRoutes'); 
-const LogsRouter = require('./src/routes/_Logs'); 
+const LogsRouter = require('./src/routes/LogsRoutes'); 
+const TelasRouter = require('./src/routes/TelasRoutes'); 
+
 
 const { rackSalaTI } = require('./src/services//sendEmailSensors');
 
@@ -61,6 +67,7 @@ app.use("/", UsuariosRoutes);
 app.use("/", indexRouter);
 app.use("/", EtiquetasRoutes);
 app.use("/", ImpressorasRoutes);
+app.use("/", DepartamentosRoutes);
 app.use("/", SenhasCofreRoutes);
 app.use("/", RelatoriosRoutes);
 app.use("/", PortariaRoutes);
@@ -68,9 +75,11 @@ app.use("/", ArquivosRouter);
 app.use("/", CoqRoutes);
 app.use("/", PaineisRoutes);
 app.use("/", RecepcaoRouters);
+app.use("/", PcpRouters);
 app.use("/", MonitoresRouter);
 app.use("/", DelsoftRouter);
 app.use("/", LogsRouter);
+app.use("/", TelasRouter);
 
 // Configurar uma rota para servir imagens
 app.use('/images-vehicles', express.static(path.join(__dirname, 'public/upload/vehicles')));
@@ -80,6 +89,7 @@ app.use('/upload', upload);
 // Endpoint para servir arquivos
 app.use('/files-lgpd', express.static(path.join(__dirname, 'public/sharedFiles/lgpd')));
 app.use('/files-manuais-informatica', express.static(path.join(__dirname, 'public/sharedFiles/manuaisinformatica')));
+app.use('/files-arquivos-downloads', express.static(path.join(__dirname, 'public/sharedFiles/arquivosdownloads')));
 app.use('/files-its', express.static(path.join(__dirname, 'public/sharedFiles/sgi/its')));
 app.use('/files-comunicacoes', express.static(path.join(__dirname, 'public/sharedFiles/comunicacoes')));
 app.use('/files-noticias', express.static(path.join(__dirname, 'public/sharedFiles/comunicacoes/noticias')));

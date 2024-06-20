@@ -67,10 +67,22 @@ const Usuarios = db.define('Usuarios',{
     badge:  {
       type: Sequelize.STRING(100),
     },
+    level: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
 });
 
     Usuarios.belongsTo(Departamentos, {
       foreignKey: 'idDept'
+    });
+
+    Usuarios.hasMany(Departamentos, {
+      foreignKey: 'supervisor1', as: 'super1'
+    });
+
+    Usuarios.hasMany(Departamentos, {
+      foreignKey: 'supervisor2', as: 'super2'
     });
 
     Usuarios.belongsTo(Status, {

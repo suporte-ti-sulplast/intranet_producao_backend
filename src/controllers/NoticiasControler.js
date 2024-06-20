@@ -64,9 +64,9 @@ exports.getNews = async (req, res) => {
  //RECUPERAR NOTICIA NA TABELA DE NOTICIAS  POR DATA ************************************************************************************************************
 exports.listNews = async (req, res) => {
 
-    const dataRequisicao = req.body.data; // Substitua '2023-09-27' pela data fornecida na requisição
+    const {data} = req.body; // Substitua '2023-09-27' pela data fornecida na requisição
 
-    if (dataRequisicao === null) {
+    if (data === null) {
         try {
             const news = await NewsModel.findAll({
                 raw: true,
@@ -79,31 +79,31 @@ exports.listNews = async (req, res) => {
             return res.status(500).json({ error: "Internal server error." });
         }
     } else {
-        
+        try {
+            const news = await NewsModel.findAll({
+                raw: true,
+                nest: true,
+                attributes: [
+                    'idNews', 'title', 'text', 'date', 'idStatus', 'link', 'dateInit',  'dateEnd'],
+                where: {
+                    dateInit: {
+                        [Op.lte]: data, // Menor ou igual a data da requisição
+                    },
+                    dateEnd: {
+                        [Op.gte]: data, // Maior ou igual a data da requisição
+                    },
+                    idStatus: 1, // Verificar se o status é igual a 1 (ativo)
+                },
+            });
+      
+            return res.json({ news });
+        } catch (error) {
+            console.log("Houve um erro interno", error);
+            return res.status(500).json({ error: "Internal server error." });
+        }
     }
 
-    try {
-        const news = await NewsModel.findAll({
-            raw: true,
-            nest: true,
-            attributes: [
-                'idNews', 'title', 'text', 'date', 'idStatus', 'link', 'dateInit',  'dateEnd'],
-            where: {
-                dateInit: {
-                    [Op.lte]: dataRequisicao, // Menor ou igual a data da requisição
-                },
-                dateEnd: {
-                    [Op.gte]: dataRequisicao, // Maior ou igual a data da requisição
-                },
-                idStatus: 1, // Verificar se o status é igual a 1 (ativo)
-            },
-        });
-  
-        return res.json({ news });
-    } catch (error) {
-        console.log("Houve um erro interno", error);
-        return res.status(500).json({ error: "Internal server error." });
-    }
+    
 
  };
 
@@ -218,7 +218,7 @@ exports.findBirthdayPeople = async (req, res) => {
             include: [
                 { 
                     model: DepartmentsModel,
-                    attributes: ['department', 'idDept', 'idlevel'],
+                    attributes: ['department', 'idDept'],
                 },
             ],
             order: [['Birthdate', 'ASC']],

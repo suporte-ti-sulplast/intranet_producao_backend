@@ -37,20 +37,19 @@ async  function sendEmailRackSalaTI(
   'Desconhecido'; 
 
   if(envia) {
-    const email = sendEmailTempRackSalaTI(equipamento, local, category, direcaoMovimento, estado, temperatura, destinatario)
+/*     const email = sendEmailTempRackSalaTI(equipamento, local, category, direcaoMovimento, estado, temperatura, destinatario) */
   } else{
     console.log('Não precisou enviar o email')
   }
-};
-
+}; 
 
 async function fetchSensorDataRackSalaTI(estadoAtual) {
 
   let dados;
-
-  let sensorData = {
+  let sensorData = {     
     sensorDHT11: 0, 
-    sensorDS18B20: 0
+    sensorDS18B20_1: 0,
+    sensorDS18B20_2: 0
   };
 
   let antigoEstado = estadoAtual;
@@ -63,7 +62,7 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
       // Se chegou aqui sem lançar exceção, interrompe o loop
       break;
     } catch (error) {
-      console.error(`Erro na tentativa ${tentativa}: ${error.message}`);
+/*       console.error(`Erro na tentativa ${tentativa}: ${error.message}`); */
       // Aguarda um tempo antes da próxima tentativa (pode ajustar o tempo conforme necessário)
       await new Promise(resolve => setTimeout(resolve, 1000)); 
     }
@@ -74,7 +73,7 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
 /*     console.error('Falha após 3 tentativas. Não foi possível obter dados do sensor.'); */
   } else {
     // Calcula a temperatura como o valor mais alto entre sensorDHT11 e sensorDS18B20
-    temperatura = Math.max(sensorData.sensorDHT11, sensorData.sensorDS18B20);
+    temperatura = Math.max(sensorData.sensorDHT11, sensorData.sensorDS18B20_1, sensorData.sensorDS18B20_2);
 
     // Garante que temperatura é um número de ponto flutuante com uma casa decimal
     temperatura = Number(temperatura.toFixed(1));
@@ -86,6 +85,7 @@ async function fetchSensorDataRackSalaTI(estadoAtual) {
     
 /*     console.log('Temperatura:', temperatura); */
   }
+
 
   const filePath = `/var/www/${servidorPath}/public/files/monitorsData.json`; // Caminho absoluto
 
@@ -185,7 +185,7 @@ async function rackSalaTI(intervaloMinutos) {
               }
               estadoAtual = retorno.novoEstado //atualizado o estado
               count = 0; //zera o contador
-              console.log("temperatura que vai para o email", temperatura)
+/*               console.log("temperatura que vai para o email", temperatura) */
               
               sendEmailRackSalaTI(equipamento,
                                   local,

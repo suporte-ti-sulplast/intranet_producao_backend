@@ -106,7 +106,7 @@ exports.listarArquivosComunicações = async (req, res) => {
 };
 
 
-//LISTA DE ARQUIVOS LGPD ************************************************************************************************************
+//LISTA DE ARQUIVOS MANUAIS INFORMÁTICA ************************************************************************************************************
 exports.listarArquivosManuaisInformatica = async (req, res) => {
 
     // Função para listar arquivos em um diretório
@@ -114,6 +114,7 @@ exports.listarArquivosManuaisInformatica = async (req, res) => {
         try {
             const arquivos = fs.readdirSync(caminhoDiretorio);
             const arquivosPDF = arquivos.filter((arquivo) => arquivo.toLowerCase().endsWith('.pdf'));
+
             return arquivosPDF;
         } catch (error) {
             console.error('Erro ao listar arquivos:', error);
@@ -125,6 +126,31 @@ exports.listarArquivosManuaisInformatica = async (req, res) => {
     const ArquivosPDF = listarArquivosManuaisInformatica(caminhoDiretorio);
     // Envia a lista de arquivos em formato JSON para o cliente
     res.json({ arquivos: ArquivosPDF });
+};
+
+//LISTA DE ARQUIVOS PARA DOWNLOADS ************************************************************************************************************
+exports.listarArquivosDownloads = async (req, res) => {
+
+    // Função para listar arquivos em um diretório
+    const arquivosdownloads = (caminhoDiretorio) => {
+        try {
+            const todosArquivos = fs.readdirSync(caminhoDiretorio);
+/*             const arquivosPDF = arquivos.filter((arquivo) => arquivo.toLowerCase().endsWith('.docx')); */
+
+            // Filtra os arquivos, excluindo aqueles que contêm "politica" no nome
+            const arquivos = todosArquivos.filter((arquivo) => !arquivo.toLowerCase().includes('política'))
+
+            return arquivos;
+        } catch (error) {
+            console.error('Erro ao listar arquivos:', error);
+            return [];
+        }
+    };
+
+    const caminhoDiretorio = path.join(__dirname, '../../public/sharedFiles/arquivosdownloads')
+    const Arquivos = arquivosdownloads(caminhoDiretorio);
+    // Envia a lista de arquivos em formato JSON para o cliente
+    res.json({ arquivos: Arquivos });
 };
 
 //LISTA DE RAMAIS ************************************************************************************************************

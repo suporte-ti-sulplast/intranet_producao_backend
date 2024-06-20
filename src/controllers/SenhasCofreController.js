@@ -3,7 +3,11 @@ const SenhasCategoriasModel = require('../../models/SenhasCategorias');
 const SenhasCofresModel = require('../../models/SenhasCofres');
 const UserModel = require('../../models/Usuarios');
 const crypto = require('crypto');
+const puppeteer = require('puppeteer');
+const { sendSenhasPDF } = require('../functions/sendEmail');
+const { where } = require('sequelize');
 var msg, msg_type;
+
 
 // Chave secreta para criptografia (mantenha isso seguro)
 const secretKey = process.env.SECRET_KEY;
@@ -39,8 +43,30 @@ const decryptIdBadge = (encryptedIdBadge) => {
 //LISTA AS SENHAS
 exports.senhasList = async (req, res) => {
 
+    const {idUser} =  req.body;
+
+    //busca o nivel do user na tabela usuários
+    const userLvl = await UserModel.findOne({
+        where: [{
+            idUser: idUser
+        }],
+        attributes: ['level'],
+    })
+
+    let where = {};
+
+    //de acordo com o nivel determina quais senhas vai trazer na lista
+    if (userLvl.level === 1) {
+        where = { level: 1 };
+    } else if (userLvl.level === 2) {
+        where = { level: [1, 2] };
+    } else if (userLvl.level === 3){
+        where = { level: [1, 2, 3] };
+    }
+
     try {
         const respostas = await SenhasCofresModel.findAll({
+            where: where,
             include: [{
                 model: UserModel,
                 attributes: ['login'],
@@ -135,33 +161,10 @@ exports.senhaFind = async (req, res) => {
 //EDITA OU CRIA SENHAS
 exports.senhaEditAdd = async (req, res) => {
 
-    var {nome, login, descricao, password, category, email1, email2, createdBy, idPassword} = req.body.dados
+    var {nome, login, descricao, password, mfa, category, level, email1, email2, createdBy, idPassword, link} = req.body.dados
     var senhaCrypto = (password !== null && password !== undefined && password !== '') ? encryptData(password) : '';
 
-    try {   
-        const res = await SenhasCofresModel.findOne({
-                where: {
-                    idPassword: idPassword
-                },
-                attributes: ['password']
-            }
-        );
-
-        const senhaAtual = (decryptIdBadge(res.password))
-        if (senhaAtual !== password) {
-
-            const dados = {
-                idPassword,
-                password: senhaAtual,
-                idUser: createdBy
-            }
-
-            SalvaSenhaAntiga(dados);
-        }
-    } catch (error) {
-        console.log("erro", error);
-    }
-
+    console.log(level)
 
     if(idPassword === 0 ) {
 
@@ -169,28 +172,31 @@ exports.senhaEditAdd = async (req, res) => {
             name: nome,
             userName: login,
             password: senhaCrypto,
+            mfa: mfa,
             descriptionPass: descricao,
             idPasswordCategory: category,
+            level: level,
             email_1: email1,
             email_2: email2,
+            link: link,
             createdBy: createdBy,
             updatedBy: createdBy
-        }
+        };
 
         // ATUALIZA A TABELA COM O NOVO VALOR
         await SenhasCofresModel.create(novoValor)
-        .then(() => {
-            console.log("Senha adicionada com sucesso");
-            msg = "Senha adicionada com sucesso";
-            msg_type = "success";
-            return res.json({ msg, msg_type });
-        })
-        .catch((err) => {
-            console.log("erro", err);
-            msg = "Houve um erro interno.";
-            msg_type = "error";
-            return res.json({ msg, msg_type });
-        }
+            .then(() => {
+                console.log("Senha adicionada com sucesso");
+                msg = "Senha adicionada com sucesso";
+                msg_type = "success";
+                return res.json({ msg, msg_type });
+            })
+            .catch((err) => {
+                console.log("erro", err);
+                msg = "Houve um erro interno.";
+                msg_type = "error";
+                return res.json({ msg, msg_type });
+            }
         );
         
     } else {
@@ -199,12 +205,15 @@ exports.senhaEditAdd = async (req, res) => {
             name: nome,
             userName: login,
             password: senhaCrypto,
+            mfa: mfa,
             descriptionPass: descricao,
             idPasswordCategory: category,
+            level: level,
             email_1: email1,
             email_2: email2,
+            link: link,
             updatedBy: createdBy
-        }
+        };
 
         await SenhasCofresModel.update(novoValor, {
                 where: {
@@ -221,7 +230,6 @@ exports.senhaEditAdd = async (req, res) => {
             msg_type = "error";
             return res.json({ msg, msg_type });
             });
-
     };
 };
 
@@ -363,4 +371,111 @@ exports.senhaCategoriaEditAdd = async (req, res) => {
     }
 };
 
+
+
+const generatePDF = async (tableData) => {
+    const browser = await puppeteer.launch({
+        args: ['--no-sandbox'] // Adicione a flag --no-sandbox
+    });
+
+    const page = await browser.newPage();
+  
+    // Construa a tabela HTML com os dados fornecidos
+    const tableHtml = `
+        <style>
+            /* Estilos CSS para a tabela */
+            table {
+                width: calc(100% - 20px); /* Width da tabela menos a margem de 10px em cada lado */
+                margin: 0 auto; /* Centralizar a tabela */
+                font-size: 12px;
+                border-collapse: collapse;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 2px 6px;
+                text-align: left;
+            }
+            /* Estilos CSS para o título e o rodapé */
+            .titulo {
+                text-align: center;
+                font-size: 20px;
+                margin-top: 20px;
+            }
+            .rodape {
+                position: absolute;
+                bottom: 20px;
+                left: 20px;
+                font-size: 10px;
+            }
+        </style>
+        <div class="titulo">LISTA DE SENHAS DO COFRE TI</div>
+
+      <table style="width: 100%; margin: 0px; font-size: 10px; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th border: 1px solid #ddd; padding: 2px 6px; text-align: left;">Nome</th>
+            <th border: 1px solid #ddd; padding: 2px 6px; text-align: left;">Login</th>
+            <th border: 1px solid #ddd; padding: 2px 6px; text-align: left;">Senha</th>
+            <th border: 1px solid #ddd; padding: 2px 6px; text-align: left;">Descrição</th>
+            <th border: 1px solid #ddd; padding: 2px 6px; text-align: left;">Categoria</th>
+            <th border: 1px solid #ddd; padding: 2px 6px; text-align: left;">Email 1</th>
+            <th border: 1px solid #ddd; padding: 2px 6px; text-align: left;">Email 2</th>
+            <th border: 1px solid #ddd; padding: 2px 6px; text-align: left;">Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableData.map(row => `
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: left;">${row.name}</td>
+              <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: left;">${row.userName}</td>
+              <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: left;">${row.password}</td>
+              <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: left;">${row.descriptionPass}</td>
+              <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: left;">${row.category.category}</td>
+              <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: left;">${row.email_1 || ''}</td>
+              <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: left;">${row.email_2 || ''}</td>
+              <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: left;">${row.link || ''}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div class="rodape">${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</div>
+    `;
+  
+    // Configure o conteúdo da página com a tabela HTML
+    await page.setContent(tableHtml);
+  
+    // Gere o PDF e retorne o buffer
+    const pdfBuffer = await page.pdf({ format: 'A4', landscape: true });
+    await browser.close();
+
+    return pdfBuffer;
+  };
+
+// Rota para o envio do PDF por email
+exports.senhaEnviarPDFEmail = async (req, res) => {
+    try {
+        const { passwordsFiltrados, idUser } = req.body; // Obtenha os dados do corpo da requisição
+
+        const user = await UserModel.findOne({
+            attributes: ['nameComplete', 'email'],
+            where: {
+                idUser: idUser
+            }
+        });
+
+        generatePDF(passwordsFiltrados)
+        .then(pdfBuffer => {
+            const envioEmail = sendSenhasPDF(user, pdfBuffer);
+            console.log(envioEmail);
+        })
+        .catch(error => {
+            console.error('Ocorreu um erro ao gerar o PDF:', error);
+            res.status(500).send('Erro ao gerar o PDF');
+        });
+
+    } catch (error) {
+        console.error('Ocorreu um erro ao buscar o usuário:', error);
+        res.status(500).send('Erro ao buscar o usuário');
+    }
+};
 

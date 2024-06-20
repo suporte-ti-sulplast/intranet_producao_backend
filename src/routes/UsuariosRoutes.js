@@ -15,7 +15,6 @@ router.post('/user-addbd', UsuariosController.userAddBD);
 router.post('/user-updatebd', UsuariosController.userUpdateBD);
 router.post('/user-newpassword', UsuariosController.userAlterPassword);
 router.post('/user-validpassword', UsuariosController.userValidPassword);
-router.post('/user-search', UsuariosController.pesquisaUsers);
 router.post('/user-delete', UsuariosController.userDelete);
 router.post('/user-pwdAgeforce', UsuariosController.pwdAgeforce);
 router.get('/user-userActivyDirectory', UsuariosController.userActivyDirectory);
@@ -27,6 +26,9 @@ router.post('/emailsGroup-edit', UsuariosController.emailsGroupEdit);
 router.post('/emailsGroup-findUsers', UsuariosController.emailsGroupFindUsers);
 router.post('/emailsGroup-deleteUsers', UsuariosController.grupoEmailDeleteUsers);
 router.post('/emailsGroup-addUsers', UsuariosController.grupoEmailAdd);
+router.get('/system-list', UsuariosController.findSystems);
+router.post('/system-user-list', UsuariosController.findSystemsUser);
+router.post('/system-department-list', UsuariosController.findSystemsDepartments);
 
 
 
