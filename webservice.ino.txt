@@ -1,0 +1,120 @@
+#include <SPI.h>
+#include <Ethernet.h>
+#include <DHT.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <ArduinoJson.h> // Adicionada biblioteca ArduinoJson
+
+#define DS18B20_OneWire_1 2
+#define DS18B20_OneWire_2 3
+#define DHTPIN A1
+#define DHTTYPE DHT11
+
+DHT dht(DHTPIN, DHTTYPE);
+OneWire oneWire1(DS18B20_OneWire_1);
+OneWire oneWire2(DS18B20_OneWire_2);
+DallasTemperature sensors1(&oneWire1);
+DallasTemperature sensors2(&oneWire2);
+
+int buzzerPin = 8;
+int count = 0;
+
+byte mac[] = { 0x70, 0xB3, 0xD5, 0x0A, 0xCC, 0x3D };  // Substitua pelo seu endereço MAC
+IPAddress ip(192, 168, 0, 235);  // Substitua pelo seu endereço IP desejado
+
+EthernetServer server(80);
+
+void setup() {
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect
+  }
+
+  pinMode(buzzerPin, OUTPUT);
+  Serial.begin(9600);
+
+  dht.begin();
+  sensors1.begin();
+  sensors2.begin();
+
+  Ethernet.begin(mac, ip);
+
+  if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+    Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    while (true) {
+      delay(1);
+    }
+  }
+  if (Ethernet.linkStatus() == LinkOFF) {
+    Serial.println("Ethernet cable is not connected.");
+  }
+
+  server.begin();
+  Serial.print("server is at ");
+  Serial.println(Ethernet.localIP());
+}
+
+void loop() {
+  EthernetClient client = server.available();
+
+  if (client) {
+    boolean currentLineIsBlank = true;
+
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
+
+        if (c == '\n' && currentLineIsBlank) {
+          client.println("HTTP/1.1 200 OK");
+          client.println("Content-Type: application/json"); // Alterado para JSON
+          client.println("Connection: close");
+          client.println("Refresh: 10");
+          client.println();
+
+          DynamicJsonDocument jsonDocument(256); // Ajuste conforme necessário
+          JsonObject root = jsonDocument.to<JsonObject>();
+
+          float humidity = dht.readHumidity();
+          float temperature = dht.readTemperature();
+          sensors1.requestTemperatures();
+          sensors2.requestTemperatures();
+          float temperatureDS18B20_1 = sensors1.getTempCByIndex(0);
+          float temperatureDS18B20_2 = sensors2.getTempCByIndex(0);
+
+
+          root["sensorDHT11"] = temperature;
+          root["sensorDS18B20_1"] = temperatureDS18B20_1;
+          root["sensorDS18B20_2"] = temperatureDS18B20_2;
+          root["umidade"] = humidity;
+
+          String jsonString;
+          serializeJson(jsonDocument, jsonString);
+
+          client.println(jsonString);
+          Serial.println(jsonString);
+          break;
+        }
+
+        if (c == '\n') {
+          currentLineIsBlank = true;
+        } else if (c != '\r') {
+          currentLineIsBlank = false;
+        }
+      }
+    }
+
+    delay(1);
+    client.stop();
+  } else {
+      float humidity = dht.readHumidity();
+      float temperature = dht.readTemperature();
+      float temperatureDS18B20_1 = sensors1.getTempCByIndex(0);
+      float temperatureDS18B20_2 = sensors2.getTempCByIndex(0);
+      Serial.print(temperature);
+      Serial.print(" - ");
+      Serial.print(temperatureDS18B20_1);
+      Serial.print(" - ");
+      Serial.println(temperatureDS18B20_2);
+      delay(1000);
+  }
+}
